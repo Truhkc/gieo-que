@@ -1481,15 +1481,36 @@ Hãy phân tích chi tiết: ý nghĩa quẻ ${hexName} trong hoàn cảnh câu 
 
 function copyPrompt(){
   const ta=document.getElementById('aiPrompt');
-  navigator.clipboard.writeText(ta.value).then(()=>{
-    const btn=document.getElementById('btnCopy');
+  const text=ta.value;
+  const btn=document.getElementById('btnCopy');
+  function onSuccess(){
     btn.textContent='✓ Đã sao chép';btn.classList.add('copied');
     setTimeout(()=>{btn.textContent='📋 Sao chép';btn.classList.remove('copied');},2200);
-  });
+  }
+  // Try modern clipboard API first (requires HTTPS)
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(onSuccess).catch(()=>fallbackCopy(text,onSuccess));
+  }else{
+    fallbackCopy(text,onSuccess);
+  }
+}
+function fallbackCopy(text,cb){
+  const t=document.createElement('textarea');
+  t.value=text;t.style.cssText='position:fixed;left:-9999px;top:-9999px';
+  document.body.appendChild(t);t.select();
+  try{document.execCommand('copy');if(cb)cb();}catch(e){alert('Không thể sao chép tự động. Hãy chọn nội dung và nhấn Ctrl+C.');}
+  document.body.removeChild(t);
 }
 function openAI(who){
-  copyPrompt();
+  const ta=document.getElementById('aiPrompt');
+  const text=ta.value;
   const urls={claude:'https://claude.ai',gpt:'https://chatgpt.com',gem:'https://gemini.google.com'};
+  // Copy first, then open regardless
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));
+  }else{
+    fallbackCopy(text);
+  }
   window.open(urls[who],'_blank');
 }
 
