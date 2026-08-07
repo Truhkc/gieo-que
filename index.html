@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>易經占卜 · Kinh Dịch</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Noto+Serif+SC:wght@300;400&family=Noto+Serif:wght@300;400;500&display=swap');
+
+:root {
+  --void:#04020d; --deep:#080418; --card:rgba(9,4,22,.93);
+  --gold:#c9a227; --gold-b:#f0cc50; --gold-dim:rgba(201,162,39,.1);
+  --gold-bd:rgba(201,162,39,.28); --crimson:#7b1212;
+  --paper:#e8d4a8; --paper-d:#9a7d50; --paper-m:#4a3520;
+  --glow:0 0 25px rgba(201,162,39,.22);
+  --glow-s:0 0 18px rgba(201,162,39,.6),0 0 45px rgba(201,162,39,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);min-height:100vh;color:var(--paper);
+  font-family:'Noto Serif',Georgia,serif;overflow-x:hidden}
+
+/* ── canvas bg ── */
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+/* ── layout ── */
+.wrap{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:0 1rem 4rem}
+
+/* ── header ── */
+header{text-align:center;padding:2.8rem 1rem 1.8rem}
+.yy{font-size:4rem;display:block;animation:spin 36s linear infinite;
+  color:var(--gold);filter:drop-shadow(0 0 14px rgba(201,162,39,.7));line-height:1;margin-bottom:1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.title-zh{font-family:'Noto Serif SC',serif;font-size:2.2rem;color:var(--gold);
+  letter-spacing:.25em;text-shadow:0 0 22px rgba(201,162,39,.5),0 0 50px rgba(201,162,39,.15);
+  display:block;margin-bottom:.35rem}
+.title-vi{font-family:'Cinzel Decorative',cursive;font-size:.72rem;color:var(--paper-d);
+  letter-spacing:.18em;display:block;margin-bottom:.8rem}
+.ornament{color:var(--gold);opacity:.35;font-size:.7rem;letter-spacing:.35em}
+
+/* ── glass card ── */
+.glass{background:var(--card);border:1px solid var(--gold-bd);border-radius:12px;
+  backdrop-filter:blur(12px);box-shadow:0 4px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(201,162,39,.08)}
+
+/* ── tabs ── */
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:1rem}
+.tab{padding:.55rem .2rem;border-radius:8px;border:1px solid var(--paper-m);background:transparent;
+  color:var(--paper-d);font-family:'Noto Serif',serif;font-size:.76rem;cursor:pointer;transition:all .3s;text-align:center;line-height:1.25}
+.tab.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);box-shadow:var(--glow)}
+
+/* ── section label ── */
+.slabel{font-family:'Cinzel Decorative',cursive;font-size:.6rem;color:var(--paper-m);
+  letter-spacing:.22em;display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+.slabel::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--gold-bd),transparent)}
+
+/* ── topic grid ── */
+.topic-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;margin-bottom:.9rem}
+.topic-btn{display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.55rem .2rem;
+  border-radius:8px;border:1px solid rgba(74,53,32,.6);background:rgba(8,4,18,.6);
+  color:var(--paper-d);cursor:pointer;transition:all .25s;font-family:'Noto Serif',serif}
+.topic-btn .ti{font-size:1.15rem}
+.topic-btn .tl{font-size:.6rem;line-height:1.2;text-align:center}
+.topic-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);
+  box-shadow:0 0 12px rgba(201,162,39,.18)}
+.topic-btn:hover:not(.active){border-color:var(--gold-bd);color:var(--paper)}
+
+/* ── inputs ── */
+.mystical-ta{width:100%;padding:.65rem .9rem;border-radius:8px;border:1px solid var(--gold-bd);
+  background:rgba(4,2,12,.85);color:var(--paper);font-family:'Noto Serif',serif;font-size:.88rem;
+  resize:none;transition:all .3s;line-height:1.5}
+.mystical-ta:focus{outline:none;border-color:var(--gold);box-shadow:0 0 14px rgba(201,162,39,.14)}
+.mystical-ta::placeholder{color:var(--paper-m);font-style:italic}
+
+.inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem}
+.inp-g label{display:block;font-size:.7rem;color:var(--paper-m);margin-bottom:.28rem;letter-spacing:.04em}
+.inp-g input{width:100%;padding:.52rem .75rem;border-radius:8px;border:1px solid var(--gold-bd);
+  background:rgba(4,2,12,.85);color:var(--paper);font-family:'Noto Serif',serif;font-size:1rem;transition:all .3s}
+.inp-g input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 12px rgba(201,162,39,.14)}
+.inp-g input::placeholder{color:var(--paper-m)}
+
+.time-box{padding:.75rem 1rem;border-radius:8px;background:rgba(201,162,39,.05);
+  border:1px solid rgba(201,162,39,.13);margin-bottom:.9rem;font-size:.82rem;line-height:1.75;color:#a08550}
+.time-box strong{color:var(--gold)}
+
+/* ── cast button ── */
+.btn-cast{width:100%;padding:.95rem;border-radius:10px;border:1px solid var(--gold);
+  background:linear-gradient(135deg,#3d0a0a,#150508);color:var(--gold-b);
+  font-family:'Cinzel Decorative',cursive;font-size:.9rem;cursor:pointer;letter-spacing:.2em;
+  transition:all .3s;position:relative;overflow:hidden;margin-top:.2rem}
+.btn-cast::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% -20%,rgba(201,162,39,.18),transparent 65%);
+  animation:castGlow 2.5s ease-in-out infinite}
+.btn-cast:hover{box-shadow:var(--glow-s);background:linear-gradient(135deg,#501010,#1e0808)}
+@keyframes castGlow{0%,100%{opacity:.6}50%{opacity:1}}
+
+/* ── coins ── */
+.coin-intro{font-size:.82rem;color:var(--paper-d);margin-bottom:.9rem;line-height:1.65}
+.coins-row{display:flex;justify-content:center;gap:1.1rem;margin-bottom:.7rem}
+.coin-disc{width:58px;height:58px;border-radius:50%;border:2px solid var(--gold);
+  background:radial-gradient(circle at 38% 32%,#e8b820,#7a4f08 60%,#3a2004);
+  display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+  box-shadow:0 0 12px rgba(201,162,39,.2),inset 0 2px 6px rgba(255,255,255,.12);
+  transform-style:preserve-3d;transition:box-shadow .3s}
+.coin-disc.flip{animation:cflip .75s ease-out}
+@keyframes cflip{
+  0%{transform:rotateX(0)}
+  30%{transform:rotateX(270deg);box-shadow:0 0 28px rgba(201,162,39,.7)}
+  70%{transform:rotateX(630deg)}
+  100%{transform:rotateX(720deg)}}
+.coin-sum{text-align:center;font-family:'Noto Serif SC',serif;font-size:1.3rem;
+  color:var(--gold);min-height:2rem;text-shadow:0 0 10px rgba(201,162,39,.5);margin-bottom:.8rem}
+
+.btn-toss{width:100%;padding:.75rem;border-radius:10px;border:1px solid var(--gold);
+  background:transparent;color:var(--gold);font-family:'Noto Serif',serif;font-size:.92rem;
+  cursor:pointer;transition:all .3s;margin-bottom:.8rem;letter-spacing:.05em}
+.btn-toss:hover:not(:disabled){background:var(--gold-dim);box-shadow:var(--glow)}
+.btn-toss:disabled{opacity:.28;cursor:not-allowed;border-color:var(--paper-m);color:var(--paper-m)}
+
+.prog-row{display:flex;align-items:center;gap:.7rem;padding:.4rem .5rem;
+  border-bottom:1px solid rgba(74,53,32,.25);font-size:.85rem}
+.prog-row .pnum{width:46px;color:var(--paper-m);font-size:.73rem}
+.prog-row .psym{width:58px;letter-spacing:3px;color:var(--paper);font-size:.95rem}
+.prog-row.mov .psym{color:var(--gold);text-shadow:0 0 8px rgba(201,162,39,.55)}
+.prog-row .pname{flex:1;color:var(--paper-d);font-size:.8rem}
+.prog-row .pmov{font-size:.7rem;color:var(--gold);padding:.1rem .4rem;
+  border:1px solid rgba(201,162,39,.35);border-radius:10px}
+
+.btn-reset{width:100%;padding:.45rem;border-radius:8px;border:1px solid rgba(74,53,32,.4);
+  background:transparent;color:var(--paper-m);cursor:pointer;font-family:'Noto Serif',serif;
+  font-size:.8rem;transition:all .2s;margin-top:.5rem}
+.btn-reset:hover{border-color:var(--gold-bd);color:var(--paper-d)}
+
+/* ── section toggle ── */
+.section{display:none}.section.active{display:block}
+
+/* ══════════════ RESULT ══════════════ */
+#result{padding-top:.3rem}
+
+.fortune-banner{text-align:center;padding:1.7rem 1.5rem;border-radius:14px;margin-bottom:1rem;
+  border:1px solid;position:relative;overflow:hidden;animation:bReveal .7s ease-out}
+.fortune-banner::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 40%,var(--bg),transparent 65%);
+  animation:bPulse 3s ease-in-out infinite;opacity:.35}
+@keyframes bReveal{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes bPulse{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.45;transform:scale(1.04)}}
+
+.fzh{font-family:'Noto Serif SC',serif;font-size:3.2rem;letter-spacing:.35em;display:block;
+  margin-bottom:.2rem;position:relative}
+.fvi{font-size:.9rem;opacity:.85;position:relative;letter-spacing:.06em}
+.freason{font-size:.78rem;opacity:.6;margin-top:.5rem;position:relative;font-style:italic}
+
+.f-dacat{--bg:rgba(201,162,39,.4);border-color:#c9a227;color:#ffe57a;background:rgba(80,50,0,.28)}
+.f-cat  {--bg:rgba(46,180,80,.35); border-color:#27ae60;color:#a8f0c6;background:rgba(0,60,20,.22)}
+.f-binh {--bg:rgba(120,120,140,.3);border-color:#636e72;color:#dfe6e9;background:rgba(30,30,45,.3)}
+.f-hung {--bg:rgba(180,30,30,.4);  border-color:#922b21;color:#f5b7b1;background:rgba(70,5,5,.3)}
+.f-dahung{--bg:rgba(120,15,15,.5); border-color:#5b1a14;color:#f1948a;background:rgba(45,3,3,.4)}
+
+/* result cards */
+.rc{background:var(--card);border:1px solid var(--gold-bd);border-radius:12px;padding:1.3rem;
+  margin-bottom:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.45),inset 0 1px 0 rgba(201,162,39,.07);
+  animation:cReveal .5s ease-out both}
+.rc:nth-child(1){animation-delay:.05s}.rc:nth-child(2){animation-delay:.15s}
+.rc:nth-child(3){animation-delay:.25s}.rc:nth-child(4){animation-delay:.35s}
+.rc:nth-child(5){animation-delay:.45s}
+@keyframes cReveal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+.rc-hdr{font-family:'Cinzel Decorative',cursive;font-size:.6rem;color:var(--paper-m);
+  letter-spacing:.22em;display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem}
+.rc-hdr::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--gold-bd),transparent)}
+
+/* domain card */
+.dc{background:rgba(16,8,4,.93);border:1px solid rgba(201,162,39,.42);border-radius:12px;
+  padding:1.3rem;margin-bottom:.9rem;box-shadow:0 0 28px rgba(201,162,39,.07);
+  animation:cReveal .5s ease-out both}
+.dc-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.22rem .65rem;
+  border-radius:18px;border:1px solid var(--gold-bd);background:var(--gold-dim);
+  font-size:.76rem;color:var(--gold);margin-bottom:.7rem}
+.q-echo{font-style:italic;color:var(--paper-m);font-size:.79rem;margin-bottom:.65rem;opacity:.8}
+.adv-main{font-size:.9rem;line-height:1.82;color:var(--paper);margin-bottom:.65rem}
+.adv-tip{font-size:.8rem;line-height:1.65;color:var(--paper-d);padding:.55rem .8rem;
+  border-left:2px solid rgba(201,162,39,.3);background:rgba(201,162,39,.04);border-radius:0 6px 6px 0}
+
+/* hexagram */
+.hex-display{text-align:center;padding:.4rem 0}
+.hex-zh{font-family:'Noto Serif SC',serif;font-size:2.8rem;color:var(--gold);
+  text-shadow:0 0 22px rgba(201,162,39,.45);display:block;margin-bottom:.15rem}
+.hex-vi{font-size:1.05rem;color:var(--paper);display:block}
+.hex-num{font-size:.7rem;color:var(--paper-m);display:block;margin-bottom:.9rem;
+  font-family:'Cinzel Decorative',cursive;letter-spacing:.12em}
+
+.hex-lines{display:inline-flex;flex-direction:column-reverse;gap:8px;margin:.5rem 0 .8rem}
+.hl{width:148px;height:14px;display:flex;gap:10px;align-items:center;
+  opacity:0;animation:lReveal .4s ease-out forwards}
+.hl:nth-child(1){animation-delay:.15s}.hl:nth-child(2){animation-delay:.32s}
+.hl:nth-child(3){animation-delay:.49s}.hl:nth-child(4){animation-delay:.66s}
+.hl:nth-child(5){animation-delay:.83s}.hl:nth-child(6){animation-delay:1s}
+@keyframes lReveal{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+.hl .seg{height:100%;background:var(--paper);border-radius:2px}
+.hl.yang .seg{width:100%}
+.hl.yin .seg{width:calc(50% - 5px)}
+.hl.mov{filter:drop-shadow(0 0 7px rgba(201,162,39,.85))}
+.hl.mov .seg{background:var(--gold-b)}
+.hl-n{font-size:.64rem;color:var(--paper-m);width:18px;text-align:right;flex-shrink:0}
+.hl.mov .hl-n{color:var(--gold)}
+
+.hex-note{font-size:.73rem;color:var(--paper-m);font-style:italic;margin-bottom:.4rem}
+.divider{height:1px;background:linear-gradient(to right,transparent,var(--gold-bd),transparent);margin:.8rem 0}
+.hex-meaning{font-size:.87rem;line-height:1.8;color:var(--paper-d);font-style:italic}
+
+/* trigrams */
+.trig-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.5rem}
+.trig-card{text-align:center;padding:.9rem .4rem;border-radius:10px;
+  background:rgba(4,2,12,.8);border:1px solid var(--gold-bd)}
+.trig-sym{font-size:2.4rem;display:block;margin-bottom:.35rem;
+  filter:drop-shadow(0 0 7px rgba(201,162,39,.4))}
+.trig-name{font-size:.92rem;color:var(--gold);display:block}
+.trig-el{font-size:.73rem;color:var(--paper-m);display:block;margin-top:.18rem}
+.trig-role{font-size:.62rem;color:rgba(74,53,32,.9);display:block;margin-top:.28rem;
+  font-family:'Cinzel Decorative',cursive;letter-spacing:.1em}
+
+/* the-dung table */
+.tbl{width:100%;font-size:.84rem;border-collapse:collapse}
+.tbl tr{border-bottom:1px solid rgba(74,53,32,.2)}.tbl tr:last-child{border-bottom:none}
+.tbl td{padding:.42rem .3rem;vertical-align:top}
+.tbl .lb{color:var(--paper-m);width:42%;font-size:.76rem}
+.tbl .vl{color:var(--paper)}
+.wuxing{margin-top:.8rem;padding:.55rem .75rem;border-radius:6px;
+  background:rgba(201,162,39,.04);border:1px solid rgba(201,162,39,.1);
+  font-size:.73rem;color:var(--paper-m);line-height:1.7}
+
+/* ── AI prompt box ── */
+.ai-box{background:rgba(4,2,12,.9);border:1px solid var(--gold-bd);border-radius:12px;
+  padding:1.2rem;margin-top:.9rem}
+.ai-prompt-ta{width:100%;padding:.65rem .9rem;border-radius:8px;border:1px solid rgba(74,53,32,.5);
+  background:rgba(0,0,0,.6);color:var(--paper-d);font-family:'Noto Serif',serif;font-size:.78rem;
+  resize:none;line-height:1.6;margin-bottom:.75rem}
+.ai-prompt-ta:focus{outline:none;border-color:var(--gold-bd)}
+.ai-btns{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.45rem}
+.ai-btn{padding:.55rem .3rem;border-radius:8px;border:1px solid;font-size:.72rem;
+  cursor:pointer;font-family:'Noto Serif',serif;letter-spacing:.03em;transition:all .25s;text-align:center}
+.ai-btn-copy{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.ai-btn-copy:hover{background:rgba(201,162,39,.2);box-shadow:var(--glow)}
+.ai-btn-copy.copied{border-color:#27ae60;color:#a8f0c6;background:rgba(0,60,20,.22)}
+.ai-btn-claude{border-color:#c97d4e;color:#e8a87c;background:rgba(60,30,10,.3)}
+.ai-btn-claude:hover{background:rgba(80,40,10,.5)}
+.ai-btn-gpt{border-color:#19c37d;color:#7ef0c0;background:rgba(0,50,25,.3)}
+.ai-btn-gpt:hover{background:rgba(0,70,35,.5)}
+.ai-btn-gem{border-color:#4a8fff;color:#a0c4ff;background:rgba(10,20,60,.3)}
+.ai-btn-gem:hover{background:rgba(15,30,80,.5)}
+.ai-copy-note{font-size:.68rem;color:var(--paper-m);text-align:center;margin-top:.5rem;
+  font-style:italic;opacity:.7}
+
+/* ══════════════ LEARN MODULE ══════════════ */
+.learn-nav{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.9rem}
+.lnav{padding:.5rem .3rem;border-radius:8px;border:1px solid rgba(74,53,32,.5);background:transparent;
+  color:var(--paper-m);font-family:'Noto Serif',serif;font-size:.72rem;cursor:pointer;
+  transition:all .3s;text-align:center;line-height:1.3}
+.lnav.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);box-shadow:var(--glow)}
+.lnav:hover:not(.active){border-color:var(--gold-bd);color:var(--paper-d)}
+.lsec{display:none}.lsec.active{display:block}
+
+.trig-learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.5rem}
+.tlc{background:rgba(4,2,12,.92);border:1px solid var(--gold-bd);border-radius:12px;
+  padding:.9rem .7rem;text-align:center}
+.tlc .tlsym{font-size:2.1rem;display:block;margin-bottom:.22rem;
+  filter:drop-shadow(0 0 8px rgba(201,162,39,.55))}
+.tlc .tlname{color:var(--gold);font-size:.88rem;display:block;margin-bottom:.1rem}
+.tlc .tlzh{color:var(--paper-m);font-size:.68rem;display:block;margin-bottom:.35rem}
+.tlc .tlel{display:inline-block;padding:.1rem .4rem;border-radius:10px;font-size:.63rem;border:1px solid;margin-bottom:.45rem}
+.tlc .tldesc{font-size:.67rem;color:var(--paper-m);line-height:1.65;text-align:left;
+  border-top:1px solid rgba(74,53,32,.3);padding-top:.45rem;margin-top:.1rem}
+.tlc .tldesc b{color:var(--paper-d)}
+
+.method-card{background:var(--card);border:1px solid var(--gold-bd);border-radius:12px;
+  padding:1.1rem;margin-bottom:.8rem}
+.method-header{display:flex;align-items:center;gap:.65rem;cursor:pointer;user-select:none}
+.method-icon{font-size:1.4rem;flex-shrink:0}
+.method-ttl{flex:1}
+.method-ttl strong{color:var(--gold);display:block;font-size:.88rem;margin-bottom:.08rem}
+.method-ttl span{color:var(--paper-m);font-size:.7rem}
+.method-arrow{color:var(--paper-m);font-size:.75rem;transition:transform .3s;flex-shrink:0}
+.method-body{overflow:hidden;max-height:0;transition:max-height .45s ease;padding-top:0}
+.method-body.open{max-height:900px;padding-top:.8rem}
+.method-card.open .method-arrow{transform:rotate(90deg)}
+
+.mstep{display:flex;gap:.6rem;margin-bottom:.6rem;align-items:flex-start}
+.mstep-n{width:19px;height:19px;border-radius:50%;border:1px solid var(--gold-bd);color:var(--gold-b);
+  font-size:.67rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.15rem;
+  background:rgba(201,162,39,.08)}
+.mstep-t{font-size:.81rem;color:var(--paper-d);line-height:1.72;flex:1}
+.mstep-t strong{color:var(--paper)}
+.mstep-t em{color:var(--gold);font-style:normal}
+.method-tip{padding:.5rem .7rem;border-radius:6px;border-left:2px solid rgba(201,162,39,.35);
+  background:rgba(201,162,39,.04);font-size:.76rem;color:var(--paper-m);line-height:1.65}
+.try-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.38rem .85rem;border-radius:18px;
+  border:1px solid var(--gold);color:var(--gold);background:var(--gold-dim);font-size:.74rem;
+  cursor:pointer;margin-top:.7rem;font-family:'Noto Serif',serif;transition:all .25s}
+.try-btn:hover{background:rgba(201,162,39,.22);box-shadow:var(--glow)}
+
+.fl-row{display:flex;align-items:center;gap:.65rem;padding:.45rem 0;border-bottom:1px solid rgba(74,53,32,.2)}
+.fl-row:last-child{border-bottom:none}
+.fl-badge{min-width:68px;text-align:center;padding:.15rem .45rem;border-radius:10px;font-size:.7rem;border:1px solid;flex-shrink:0}
+
+.hao-row{display:flex;align-items:center;gap:.6rem;padding:.3rem 0;border-bottom:1px solid rgba(74,53,32,.18)}
+.hao-row:last-child{border-bottom:none}
+.hao-num{min-width:46px;color:var(--gold);font-size:.75rem;flex-shrink:0}
+.hao-desc{font-size:.78rem;color:var(--paper-m);flex:1;line-height:1.6}
+
+.wx-wrap{overflow-x:auto;margin-bottom:.5rem}
+.wxt{width:100%;border-collapse:collapse;font-size:.76rem}
+.wxt th{padding:.38rem .45rem;color:var(--gold);font-weight:normal;
+  border-bottom:1px solid rgba(201,162,39,.2);font-size:.64rem;letter-spacing:.05em;white-space:nowrap}
+.wxt td{padding:.33rem .45rem;border-bottom:1px solid rgba(74,53,32,.18);color:var(--paper-d);white-space:nowrap}
+.wxt td:first-child{color:var(--paper)}
+.wxt tr:last-child td{border-bottom:none}
+
+.hex64-search{width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--gold-bd);
+  background:rgba(4,2,12,.85);color:var(--paper);font-family:'Noto Serif',serif;font-size:.86rem;
+  outline:none;margin-bottom:.75rem;transition:border-color .3s}
+.hex64-search:focus{border-color:var(--gold)}
+.hex64-search::placeholder{color:var(--paper-m);font-style:italic}
+.hex64-grid{display:grid;grid-template-columns:1fr 1fr;gap:.42rem}
+.hx64{background:rgba(4,2,12,.9);border:1px solid rgba(74,53,32,.4);border-radius:8px;
+  padding:.55rem .65rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.5rem}
+.hx64:hover{border-color:var(--gold-bd);background:var(--gold-dim)}
+.hx64 .h64n{font-size:.58rem;color:var(--paper-m);width:15px;flex-shrink:0;text-align:right}
+.hx64 .h64zh{font-family:'Noto Serif SC',serif;font-size:1.2rem;color:var(--gold);flex-shrink:0}
+.hx64 .h64info{flex:1;min-width:0}
+.hx64 .h64name{font-size:.76rem;color:var(--paper);display:block}
+.hx64 .h64m{font-size:.62rem;color:var(--paper-m);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hx64.hidden{display:none}
+
+.hmodal{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;
+  justify-content:center;background:rgba(4,2,12,.82);backdrop-filter:blur(5px)}
+.hmodal.open{display:flex}
+.hm-sheet{background:var(--card);border:1px solid var(--gold-bd);border-radius:16px 16px 0 0;
+  padding:1.4rem;width:100%;max-width:520px;max-height:82vh;overflow-y:auto;
+  box-shadow:0 -4px 40px rgba(0,0,0,.65);animation:slideUp .3s ease-out}
+@keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+.hm-close-btn{float:right;background:transparent;border:1px solid rgba(74,53,32,.5);
+  color:var(--paper-m);border-radius:6px;padding:.2rem .6rem;cursor:pointer;
+  font-size:.78rem;font-family:'Noto Serif',serif}
+.hm-close-btn:hover{border-color:var(--gold-bd);color:var(--paper-d)}
+
+/* ══════════════ HISTORY PANEL ══════════════ */
+.hist-toggle{position:fixed;top:1.2rem;right:1.2rem;z-index:100;width:42px;height:42px;border-radius:50%;
+  border:1px solid var(--gold-bd);background:var(--card);color:var(--gold);font-size:1.2rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;
+  backdrop-filter:blur(8px)}
+.hist-toggle:hover{box-shadow:var(--glow);border-color:var(--gold)}
+.hist-badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;border-radius:8px;
+  background:#c9a227;color:#04020d;font-size:.6rem;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.hist-overlay{position:fixed;inset:0;background:rgba(4,2,12,.5);z-index:140;opacity:0;pointer-events:none;transition:opacity .3s}
+.hist-overlay.open{opacity:1;pointer-events:auto}
+.hist-panel{position:fixed;top:0;right:-380px;width:360px;max-width:90vw;height:100vh;
+  background:var(--card);border-left:1px solid var(--gold-bd);z-index:150;transition:right .35s ease;
+  overflow-y:auto;backdrop-filter:blur(15px);box-shadow:-4px 0 30px rgba(0,0,0,.5)}
+.hist-panel.open{right:0}
+.hist-hdr{padding:1.2rem;border-bottom:1px solid var(--gold-bd);display:flex;align-items:center;justify-content:space-between}
+.hist-title{font-family:'Cinzel Decorative',cursive;font-size:.75rem;color:var(--gold);letter-spacing:.15em}
+.hist-close{background:transparent;border:1px solid rgba(74,53,32,.5);color:var(--paper-m);border-radius:6px;
+  padding:.2rem .6rem;cursor:pointer;font-size:.78rem;font-family:'Noto Serif',serif}
+.hist-close:hover{border-color:var(--gold-bd);color:var(--paper-d)}
+.hist-list{padding:.8rem}
+.hist-entry{padding:.8rem;border:1px solid rgba(74,53,32,.3);border-radius:10px;margin-bottom:.6rem;
+  cursor:pointer;transition:all .25s;background:rgba(4,2,12,.6)}
+.hist-entry:hover{border-color:var(--gold-bd);background:var(--gold-dim)}
+.hist-date{font-size:.65rem;color:var(--paper-m);margin-bottom:.3rem}
+.hist-info{display:flex;align-items:center;gap:.6rem}
+.hist-zh{font-family:'Noto Serif SC',serif;font-size:1.4rem;color:var(--gold)}
+.hist-name{font-size:.82rem;color:var(--paper)}
+.hist-level{font-size:.68rem;padding:.1rem .4rem;border-radius:8px;border:1px solid;display:inline-block;margin-top:.2rem}
+.hist-empty{text-align:center;padding:2rem 1rem;color:var(--paper-m);font-size:.82rem;font-style:italic}
+.hist-clear{width:100%;padding:.5rem;border-radius:8px;border:1px solid rgba(74,53,32,.4);
+  background:transparent;color:var(--paper-m);cursor:pointer;font-family:'Noto Serif',serif;
+  font-size:.75rem;transition:all .2s;margin-top:.5rem}
+.hist-clear:hover{border-color:#922b21;color:#f5b7b1}
+
+/* ══════════════ QUẺ BIẾN ══════════════ */
+.bien-arrow{text-align:center;font-size:1.5rem;color:var(--gold);margin:.6rem 0;opacity:.7;
+  animation:bienPulse 2s ease-in-out infinite}
+@keyframes bienPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
+.bien-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.5rem}
+.bien-hex{text-align:center}
+.bien-hex .hex-zh{font-size:2rem}
+.bien-label{font-size:.62rem;color:var(--paper-m);text-align:center;font-family:'Cinzel Decorative',cursive;
+  letter-spacing:.1em;margin-top:.3rem;display:block}
+
+/* ══════════════ YARROW STALK ══════════════ */
+.yarrow-intro{font-size:.82rem;color:var(--paper-d);margin-bottom:.9rem;line-height:1.65}
+.yarrow-prob{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.9rem;justify-content:center}
+.yarrow-prob span{font-size:.68rem;padding:.2rem .5rem;border-radius:12px;border:1px solid var(--gold-bd);
+  color:var(--paper-d);background:rgba(4,2,12,.6)}
+.yarrow-prob span em{color:var(--gold);font-style:normal}
+.stalk-visual{text-align:center;padding:1rem 0;margin-bottom:.6rem}
+.stalk-count{font-family:'Noto Serif SC',serif;font-size:3rem;color:var(--gold);
+  text-shadow:0 0 18px rgba(201,162,39,.4);display:block;margin-bottom:.2rem;transition:all .5s ease}
+.stalk-label{font-size:.75rem;color:var(--paper-m);display:block}
+.stalk-anim{display:inline-block;font-size:2.5rem;transition:transform .5s ease;transform-origin:bottom center}
+.stalk-anim.shake{animation:stalkShake .6s ease}
+@keyframes stalkShake{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(2deg)}}
+.btn-yarrow{width:100%;padding:.75rem;border-radius:10px;border:1px solid #27ae60;
+  background:linear-gradient(135deg,#0a2a1a,#081508);color:#a8f0c6;font-family:'Noto Serif',serif;
+  font-size:.88rem;cursor:pointer;transition:all .3s;margin-bottom:.8rem;letter-spacing:.05em}
+.btn-yarrow:hover:not(:disabled){background:linear-gradient(135deg,#0f3d26,#0c1f0c);box-shadow:0 0 18px rgba(39,174,96,.25)}
+.btn-yarrow:disabled{opacity:.28;cursor:not-allowed;border-color:var(--paper-m);color:var(--paper-m)}
+
+/* ══════════════ SOUND TOGGLE ══════════════ */
+.sound-toggle{position:fixed;top:1.2rem;right:4.2rem;z-index:100;width:36px;height:36px;border-radius:50%;
+  border:1px solid var(--gold-bd);background:var(--card);color:var(--paper-m);font-size:.9rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(8px)}
+.sound-toggle.on{color:var(--gold);border-color:var(--gold)}
+.sound-toggle:hover{box-shadow:var(--glow)}
+
+/* ══════════════ PARTICLE BURST ══════════════ */
+.burst-container{position:fixed;pointer-events:none;z-index:50;inset:0}
+.burst-particle{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--gold);
+  animation:burstFly 1.2s ease-out forwards}
+@keyframes burstFly{0%{opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--bx),var(--by)) scale(0)}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<button class="hist-toggle" onclick="toggleHistory()" title="Lịch sử gieo quẻ">📜<span class="hist-badge" id="histBadge" style="display:none">0</span></button>
+<button class="sound-toggle" id="soundBtn" onclick="toggleSound()" title="Âm thanh">🔇</button>
+<div class="wrap">
+
+<header>
+  <span class="yy">☯</span>
+  <span class="title-zh">易 經 占 卜</span>
+  <span class="title-vi">Gieo Quẻ Kinh Dịch · Mai Hoa Dịch Số</span>
+  <div class="ornament">◈ ─────────── ◈ ─────────── ◈</div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('maihoa',this)">📅 Mai Hoa</button>
+  <button class="tab" onclick="switchTab('coin',this)">🪙 Đồng Xu</button>
+  <button class="tab" onclick="switchTab('yarrow',this)">🌿 Cỏ Thi</button>
+  <button class="tab" onclick="switchTab('hoc',this)">📖 Học</button>
+</div>
+
+<!-- topic + question (shared) -->
+<div class="glass" style="padding:1.2rem;margin-bottom:1rem">
+  <div class="slabel">Chủ đề bói quẻ</div>
+  <div class="topic-grid" id="topicGrid">
+    <button class="topic-btn active" data-topic="daily"    onclick="selectTopic(this)"><span class="ti">📅</span><span class="tl">Hàng ngày</span></button>
+    <button class="topic-btn" data-topic="love"     onclick="selectTopic(this)"><span class="ti">💕</span><span class="tl">Tình yêu</span></button>
+    <button class="topic-btn" data-topic="marriage" onclick="selectTopic(this)"><span class="ti">💍</span><span class="tl">Hôn nhân</span></button>
+    <button class="topic-btn" data-topic="career"   onclick="selectTopic(this)"><span class="ti">💼</span><span class="tl">Sự nghiệp</span></button>
+    <button class="topic-btn" data-topic="wealth"   onclick="selectTopic(this)"><span class="ti">💰</span><span class="tl">Tài lộc</span></button>
+    <button class="topic-btn" data-topic="health"   onclick="selectTopic(this)"><span class="ti">🏥</span><span class="tl">Sức khỏe</span></button>
+    <button class="topic-btn" data-topic="friend"   onclick="selectTopic(this)"><span class="ti">👥</span><span class="tl">Bạn bè</span></button>
+    <button class="topic-btn" data-topic="study"    onclick="selectTopic(this)"><span class="ti">📚</span><span class="tl">Học tập</span></button>
+    <button class="topic-btn" data-topic="travel"   onclick="selectTopic(this)"><span class="ti">✈️</span><span class="tl">Du hành</span></button>
+    <button class="topic-btn" data-topic="business" onclick="selectTopic(this)"><span class="ti">🤝</span><span class="tl">Giao dịch</span></button>
+  </div>
+  <textarea class="mystical-ta" id="questionInput" rows="2"
+    placeholder="Nhập câu hỏi cụ thể (tùy chọn)..."></textarea>
+</div>
+
+<!-- Mai Hoa -->
+<div id="sec-maihoa" class="section active">
+  <div class="glass" style="padding:1.2rem;margin-bottom:1rem">
+    <div class="slabel">Thời Điểm Gieo Quẻ</div>
+    <div class="time-box" id="timeInfo"></div>
+    <div style="font-size:.72rem;color:var(--paper-m);margin-bottom:.6rem;line-height:1.5;padding:.4rem .6rem;border-left:2px solid var(--gold-bd);background:rgba(201,162,39,.05);border-radius:0 6px 6px 0">
+      💡 <strong style="color:var(--paper-d)">Thời gian lúc gieo quẻ</strong> (bỏ trống = tự động).<br>
+      Mỗi lần bấm AN QUẺ sẽ dùng phút:giây chính xác → kết quả khác nhau.
+    </div>
+    <div class="inp-grid">
+      <div class="inp-g"><label>Năm gieo (2 số cuối)</label><input type="number" id="inYear" min="0" max="99"></div>
+      <div class="inp-g"><label>Tháng gieo (1–12)</label><input type="number" id="inMonth" min="1" max="12"></div>
+      <div class="inp-g"><label>Ngày gieo (1–31)</label><input type="number" id="inDay" min="1" max="31"></div>
+      <div class="inp-g"><label>Giờ địa chi (1–12)</label><input type="number" id="inHour" min="1" max="12"></div>
+    </div>
+    <div style="margin-bottom:.8rem">
+      <label style="font-size:.72rem;color:var(--paper-m);display:block;margin-bottom:.3rem">Số khởi niệm <span style="color:var(--gold)">(tùy chọn)</span> — nghĩ 1 số bất kỳ, hoặc bấm 🎲</label>
+      <div style="display:flex;gap:.4rem">
+        <input type="number" id="inNiem" min="1" max="9999" placeholder="VD: 37, 168, 888..." style="flex:1;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--gold-bd);background:rgba(4,2,12,.6);color:var(--paper-d);font-family:'Noto Serif',serif;font-size:.85rem;text-align:center">
+        <button onclick="document.getElementById('inNiem').value=Math.floor(crypto.getRandomValues(new Uint32Array(1))[0]%9999)+1;this.style.transform='rotate(360deg)';setTimeout(()=>this.style.transform='',400)" style="padding:.4rem .7rem;border-radius:8px;border:1px solid var(--gold-bd);background:linear-gradient(135deg,rgba(201,162,39,.15),rgba(4,2,12,.6));color:var(--gold);font-size:1.2rem;cursor:pointer;transition:transform .4s ease" title="Random số">🎲</button>
+      </div>
+    </div>
+    <button class="btn-cast" onclick="castMaiHoa()">✦ AN QUẺ ✦</button>
+  </div>
+</div>
+
+<!-- Coin -->
+<div id="sec-coin" class="section">
+  <div class="glass" style="padding:1.2rem;margin-bottom:1rem">
+    <div class="slabel">Tung Đồng Xu</div>
+    <p class="coin-intro">Tung 3 đồng xu 6 lần · Xây hào từ dưới lên<br>
+      ☀ Sấp = 3 &nbsp;·&nbsp; ☾ Ngửa = 2 &nbsp;·&nbsp;
+      <b style="color:var(--gold)">9</b> Dương Động &nbsp;·&nbsp;
+      <b style="color:var(--gold)">6</b> Âm Động</p>
+    <div class="coins-row">
+      <div class="coin-disc" id="c0">☀</div>
+      <div class="coin-disc" id="c1">☀</div>
+      <div class="coin-disc" id="c2">☀</div>
+    </div>
+    <div class="coin-sum" id="coinSum">―</div>
+    <button class="btn-toss" id="btnToss" onclick="tossCoin()">
+      ✦ Tung Hào <span id="tossCount">1</span> / 6
+    </button>
+    <div id="linesProgress"></div>
+    <button class="btn-reset" onclick="resetCoin()">↺ Làm lại từ đầu</button>
+  </div>
+</div>
+
+<!-- Yarrow Stalk -->
+<div id="sec-yarrow" class="section">
+  <div class="glass" style="padding:1.2rem;margin-bottom:1rem">
+    <div class="slabel">Phương Pháp Cỏ Thi · Yarrow Stalk</div>
+    <p class="yarrow-intro">Mô phỏng phương pháp bói cổ xưa nhất của Kinh Dịch. Xác suất khác biệt đáng kể so với đồng xu — thiên về Âm tĩnh, phản ánh triết lý vũ trụ.</p>
+    <div class="yarrow-prob">
+      <span><em>6</em> Âm Động · 1/16</span>
+      <span>7 Dương · 5/16</span>
+      <span>8 Âm · 7/16</span>
+      <span><em>9</em> Dương Động · 3/16</span>
+    </div>
+    <div class="stalk-visual">
+      <span class="stalk-anim" id="stalkAnim">🌿</span>
+      <span class="stalk-count" id="yarrowCount">49</span>
+      <span class="stalk-label">cọng cỏ thi</span>
+    </div>
+    <button class="btn-yarrow" id="btnYarrow" onclick="castYarrowLine()">
+      🌿 Chia Cỏ · Hào <span id="yarrowHaoCount">1</span> / 6
+    </button>
+    <div id="yarrowProgress"></div>
+    <button class="btn-reset" onclick="resetYarrow()">↺ Làm lại từ đầu</button>
+  </div>
+</div>
+
+<!-- ══════════ HỌC KINH DỊCH ══════════ -->
+<div id="sec-hoc" class="section">
+
+  <div class="learn-nav">
+    <button class="lnav active" onclick="switchLearn('batqua',this)">☰ Bát Quái</button>
+    <button class="lnav" onclick="switchLearn('phuongphap',this)">📿 Phương Pháp</button>
+    <button class="lnav" onclick="switchLearn('docque',this)">📖 Đọc Quẻ</button>
+    <button class="lnav" onclick="switchLearn('64que',this)">卦 64 Quẻ</button>
+  </div>
+
+  <!-- ── BÁT QUÁI ── -->
+  <div id="learn-batqua" class="lsec active">
+    <div class="glass" style="padding:1.1rem;margin-bottom:1rem">
+      <div class="slabel">Bát Quái · Nền Tảng Kinh Dịch</div>
+      <p style="font-size:.82rem;color:var(--paper-d);line-height:1.72;margin-bottom:.9rem">
+        Kinh Dịch xây dựng trên <strong style="color:var(--gold)">8 quẻ đơn</strong>, mỗi quẻ gồm 3 hào Âm/Dương.
+        Hai quẻ đơn chồng lên nhau tạo thành <strong style="color:var(--gold)">64 quẻ kép</strong>.
+        Quẻ trên gọi là <em style="color:var(--gold)">Thượng quái</em>, quẻ dưới là <em style="color:var(--gold)">Hạ quái</em>.
+      </p>
+      <div class="trig-learn-grid" id="batqua-grid"><!-- JS --></div>
+    </div>
+  </div>
+
+  <!-- ── PHƯƠNG PHÁP ── -->
+  <div id="learn-phuongphap" class="lsec">
+
+    <div class="method-card">
+      <div class="method-header" onclick="toggleMethod(this)">
+        <span class="method-icon">🌿</span>
+        <div class="method-ttl"><strong>Phương Pháp Cỏ Thi</strong><span>Yarrow Stalk · Cổ xưa nhất · Nghi lễ cao</span></div>
+        <span class="method-arrow">▶</span>
+      </div>
+      <div class="method-body">
+        <div class="mstep"><span class="mstep-n">1</span><div class="mstep-t">Chuẩn bị <strong>50 cọng cỏ thi</strong>. Cất riêng <em>1 cọng</em> (tượng Thái Cực). Dùng <em>49 cọng</em> còn lại.</div></div>
+        <div class="mstep"><span class="mstep-n">2</span><div class="mstep-t"><strong>Phân đôi ngẫu nhiên</strong> 49 cọng thành 2 nhóm. Lấy <em>1 cọng</em> từ nhóm phải kẹp vào ngón áp út tay trái.</div></div>
+        <div class="mstep"><span class="mstep-n">3</span><div class="mstep-t">Đếm nhóm trái <strong>theo nhóm 4</strong> đến khi còn 1–4 cọng. Kẹp phần dư vào ngón giữa tay trái.</div></div>
+        <div class="mstep"><span class="mstep-n">4</span><div class="mstep-t">Đếm nhóm phải theo nhóm 4, kẹp phần dư vào ngón trỏ. <strong>Đếm tổng cọng kẹp giữa các ngón</strong> → 5 hoặc 9.</div></div>
+        <div class="mstep"><span class="mstep-n">5</span><div class="mstep-t">Lặp lại bước 2–4 thêm <strong>2 lần nữa</strong> (tổng 3 vòng). Kết quả cuối → <em>6</em> Âm Động · <em>7</em> Dương · <em>8</em> Âm · <em>9</em> Dương Động.</div></div>
+        <div class="mstep"><span class="mstep-n">6</span><div class="mstep-t"><strong>Lặp cả quy trình 6 lần</strong> để xây 6 hào từ dưới lên → hoàn thành 1 quẻ kép.</div></div>
+        <div class="method-tip">⏳ Mỗi lần bói tốn 30–60 phút, phù hợp nghi lễ và thiền định. Xác suất: Dương động (9) = 1/16 · Dương (7) = 5/16 · Âm (8) = 7/16 · Âm động (6) = 3/16.</div>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="method-header" onclick="toggleMethod(this)">
+        <span class="method-icon">🪙</span>
+        <div class="method-ttl"><strong>Phương Pháp Đồng Xu</strong><span>Coin Method · Phổ biến nhất · Nhanh gọn</span></div>
+        <span class="method-arrow">▶</span>
+      </div>
+      <div class="method-body">
+        <div class="mstep"><span class="mstep-n">1</span><div class="mstep-t">Chuẩn bị <strong>3 đồng xu</strong> giống nhau. Tập trung vào câu hỏi trong tâm trí trước khi tung.</div></div>
+        <div class="mstep"><span class="mstep-n">2</span><div class="mstep-t">Quy ước: <em>Mặt sấp = 3</em> · <em>Mặt ngửa = 2</em>. Tung cả 3 đồng cùng lúc và cộng tổng điểm (6, 7, 8 hoặc 9).</div></div>
+        <div class="mstep"><span class="mstep-n">3</span><div class="mstep-t">Đọc kết quả: <em>6</em> = ━━ ━━ Âm Động &nbsp;·&nbsp; <em>7</em> = ━━━━━ Dương &nbsp;·&nbsp; <em>8</em> = ━━ ━━ Âm &nbsp;·&nbsp; <em>9</em> = ━━━━━ Dương Động.</div></div>
+        <div class="mstep"><span class="mstep-n">4</span><div class="mstep-t">Ghi hào vừa thu được. <strong>Tung tiếp 5 lần</strong> (tổng 6 lần), xây từng hào từ dưới lên trên.</div></div>
+        <div class="mstep"><span class="mstep-n">5</span><div class="mstep-t">3 hào dưới → <em>Hạ quái</em> · 3 hào trên → <em>Thượng quái</em>. Tra bảng 8×8 tìm tên quẻ kép.</div></div>
+        <div class="method-tip">💡 <strong>Hào Động</strong> (6 hoặc 9) là hào đang biến đổi — đây là trọng tâm của quẻ. Nếu có nhiều hào động, lấy hào thấp nhất (gần bản thân nhất) để luận.</div>
+        <button class="try-btn" onclick="goTo('coin')">✦ Thực hành ngay →</button>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="method-header" onclick="toggleMethod(this)">
+        <span class="method-icon">🌸</span>
+        <div class="method-ttl"><strong>Mai Hoa Dịch Số</strong><span>Thiệu Ung · Không cần công cụ · Dùng thời gian</span></div>
+        <span class="method-arrow">▶</span>
+      </div>
+      <div class="method-body">
+        <div class="mstep"><span class="mstep-n">1</span><div class="mstep-t">Ghi lại thời điểm bói: <strong>Năm (2 số cuối)</strong>, <em>Tháng</em>, <em>Ngày</em>, <em>Giờ địa chi</em> (Tý=1 · Sửu=2 · … · Hợi=12).</div></div>
+        <div class="mstep"><span class="mstep-n">2</span><div class="mstep-t"><em>Thượng quái:</em> (Năm + Tháng + Ngày) ÷ 8 → lấy <strong>số dư</strong>. Nếu dư 0 thì dùng 8 (Khôn ☷).</div></div>
+        <div class="mstep"><span class="mstep-n">3</span><div class="mstep-t"><em>Hạ quái:</em> (Năm + Tháng + Ngày + Giờ) ÷ 8 → lấy <strong>số dư</strong>. Dư 0 = 8.</div></div>
+        <div class="mstep"><span class="mstep-n">4</span><div class="mstep-t"><em>Hào động:</em> (Năm + Tháng + Ngày + Giờ) ÷ 6 → lấy <strong>số dư</strong>. Dư 0 = 6.</div></div>
+        <div class="mstep"><span class="mstep-n">5</span><div class="mstep-t">Tra bảng 8×8 → xác định quẻ kép. Phân tích <em>Thể–Dụng</em> và <em>Ngũ hành sinh khắc</em> để luận đoán.</div></div>
+        <div class="method-tip">🌸 Triết lý: Vũ trụ vận hành theo số học. Khoảnh khắc bạn đặt câu hỏi đã chứa đựng câu trả lời. Thiệu Ung: <em>"Bất kỳ chuyển động nào đều có thể khởi quẻ."</em></div>
+        <button class="try-btn" onclick="goTo('maihoa')">✦ Thực hành ngay →</button>
+      </div>
+    </div>
+
+    <div class="method-card">
+      <div class="method-header" onclick="toggleMethod(this)">
+        <span class="method-icon">🔢</span>
+        <div class="method-ttl"><strong>Các Cách Khởi Quẻ Khác</strong><span>Mai Hoa mở rộng · Quan sát vạn vật</span></div>
+        <span class="method-arrow">▶</span>
+      </div>
+      <div class="method-body">
+        <div class="mstep"><span class="mstep-n">①</span><div class="mstep-t"><strong>Âm thanh chiếm:</strong> Đếm số tiếng gõ cửa, tiếng chim kêu → lấy số đó lập quẻ như Mai Hoa.</div></div>
+        <div class="mstep"><span class="mstep-n">②</span><div class="mstep-t"><strong>Từ chiếm (chữ viết):</strong> Viết từ/câu hỏi → đếm nét chữ hoặc số chữ → chia 8 và 6 lấy quẻ và hào. Ví dụ 2 chữ: chữ đầu = Thượng quái, chữ sau = Hạ quái.</div></div>
+        <div class="mstep"><span class="mstep-n">③</span><div class="mstep-t"><strong>Quan sát Động/Tĩnh vật:</strong> Thấy quạ kêu → hung · Thấy chim khách → lành. Vật tròn → sự thành · Vật sứt mẻ → thất bại.</div></div>
+        <div class="mstep"><span class="mstep-n">④</span><div class="mstep-t"><strong>Màu sắc chiếm:</strong> Xanh = Mộc · Đỏ = Hỏa · Trắng = Kim · Đen = Thủy · Vàng = Thổ. Màu ngoại cảnh gặp trước → dụng quái.</div></div>
+        <div class="method-tip">✨ Tất cả phương pháp mở rộng đều dựa trên nguyên lý: <em>mọi tín hiệu vũ trụ đều chứa đựng thông điệp nếu bạn biết đọc.</em></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── ĐỌC QUẺ ── -->
+  <div id="learn-docque" class="lsec">
+
+    <div class="glass" style="padding:1.1rem;margin-bottom:1rem">
+      <div class="slabel">Thể Quái &amp; Dụng Quái</div>
+      <p style="font-size:.82rem;color:var(--paper-d);line-height:1.72;margin-bottom:.8rem">
+        Khi có <strong style="color:var(--gold)">Hào động</strong>, quẻ kép phân ra <em style="color:var(--gold)">Thể</em> (bản thân) và <em style="color:var(--gold)">Dụng</em> (sự việc bên ngoài).
+      </p>
+      <div style="background:rgba(201,162,39,.05);border:1px solid rgba(201,162,39,.12);border-radius:8px;padding:.75rem .9rem;font-size:.8rem;color:var(--paper-d);line-height:1.9">
+        Hào động ở <strong style="color:var(--paper)">Hạ quái (hào 1–3)</strong>:<br>
+        &nbsp;&nbsp;→ <em style="color:var(--gold)">Thể = Thượng quái</em> &nbsp;·&nbsp; Dụng = Hạ quái<br><br>
+        Hào động ở <strong style="color:var(--paper)">Thượng quái (hào 4–6)</strong>:<br>
+        &nbsp;&nbsp;→ <em style="color:var(--gold)">Thể = Hạ quái</em> &nbsp;·&nbsp; Dụng = Thượng quái
+      </div>
+    </div>
+
+    <div class="glass" style="padding:1.1rem;margin-bottom:1rem">
+      <div class="slabel">Ngũ Hành Sinh Khắc</div>
+      <div class="wx-wrap">
+        <table class="wxt">
+          <tr><th>Ngũ Hành</th><th>Sinh ra</th><th>Khắc</th><th>Bị khắc</th><th>Quẻ tương ứng</th></tr>
+          <tr><td>🔶 Kim</td><td>Thủy</td><td>Mộc</td><td>Hỏa</td><td>Càn ☰ · Đoài ☱</td></tr>
+          <tr><td>🔵 Thủy</td><td>Mộc</td><td>Hỏa</td><td>Thổ</td><td>Khảm ☵</td></tr>
+          <tr><td>🟢 Mộc</td><td>Hỏa</td><td>Thổ</td><td>Kim</td><td>Chấn ☳ · Tốn ☴</td></tr>
+          <tr><td>🔴 Hỏa</td><td>Thổ</td><td>Kim</td><td>Thủy</td><td>Ly ☲</td></tr>
+          <tr><td>🟡 Thổ</td><td>Kim</td><td>Thủy</td><td>Mộc</td><td>Cấn ☶ · Khôn ☷</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="glass" style="padding:1.1rem;margin-bottom:1rem">
+      <div class="slabel">Năm Mức Vận Hạn</div>
+      <div class="fl-row">
+        <span class="fl-badge" style="border-color:#c9a227;color:#ffe57a;background:rgba(80,50,0,.28)">🌟 Đại Cát</span>
+        <span style="font-size:.79rem;color:var(--paper-d);flex:1"><strong style="color:var(--paper)">Dụng sinh Thể</strong> — ngoại cảnh thuận lợi, quý nhân phù trợ</span>
+      </div>
+      <div class="fl-row">
+        <span class="fl-badge" style="border-color:#27ae60;color:#a8f0c6;background:rgba(0,60,20,.22)">✅ Cát</span>
+        <span style="font-size:.79rem;color:var(--paper-d);flex:1"><strong style="color:var(--paper)">Thể Dụng Tỷ Hòa</strong> — cùng ngũ hành, đồng lòng hợp tác</span>
+      </div>
+      <div class="fl-row">
+        <span class="fl-badge" style="border-color:#636e72;color:#dfe6e9;background:rgba(30,30,45,.3)">⚖️ Bình</span>
+        <span style="font-size:.79rem;color:var(--paper-d);flex:1"><strong style="color:var(--paper)">Thể khắc Dụng</strong> — nỗ lực hao sức nhưng vẫn làm chủ</span>
+      </div>
+      <div class="fl-row">
+        <span class="fl-badge" style="border-color:#922b21;color:#f5b7b1;background:rgba(70,5,5,.3)">⚠️ Hung</span>
+        <span style="font-size:.79rem;color:var(--paper-d);flex:1"><strong style="color:var(--paper)">Thể sinh Dụng</strong> — hao tài tốn sức, cho nhiều hơn nhận</span>
+      </div>
+      <div class="fl-row">
+        <span class="fl-badge" style="border-color:#5b1a14;color:#f1948a;background:rgba(45,3,3,.4)">🔴 Đại Hung</span>
+        <span style="font-size:.79rem;color:var(--paper-d);flex:1"><strong style="color:var(--paper)">Dụng khắc Thể</strong> — hoàn cảnh áp chế, dễ gặp tai họa</span>
+      </div>
+    </div>
+
+    <div class="glass" style="padding:1.1rem;margin-bottom:1rem">
+      <div class="slabel">Ý Nghĩa Vị Trí 6 Hào</div>
+      <div class="hao-row"><span class="hao-num">Hào 1 ━</span><span class="hao-desc">Khởi đầu, tiềm ẩn, chưa hiển lộ — thế chưa vững, còn đang ẩn</span></div>
+      <div class="hao-row"><span class="hao-num">Hào 2 ━</span><span class="hao-desc">Hành động trong giới hạn nội tâm — vị trí tốt của thần dân</span></div>
+      <div class="hao-row"><span class="hao-num">Hào 3 ━</span><span class="hao-desc">Chuyển tiếp nguy hiểm, ranh giới nội–ngoại — dễ gặp sai lầm</span></div>
+      <div class="hao-row"><span class="hao-num">Hào 4 ━</span><span class="hao-desc">Tiếp cận quyền lực, vị trí gần vua — thận trọng và nhu thuận</span></div>
+      <div class="hao-row"><span class="hao-num">Hào 5 ━</span><span class="hao-desc">Đỉnh cao lý tưởng, vị trí quân vương — vừa trung vừa chính</span></div>
+      <div class="hao-row"><span class="hao-num">Hào 6 ━</span><span class="hao-desc">Cực điểm, vượt giới hạn — chuyển sang chu kỳ mới, dễ quá đà</span></div>
+    </div>
+
+    <div class="glass" style="padding:1.1rem;margin-bottom:1rem">
+      <div class="slabel">Hướng Dẫn Đọc Quẻ Bước Từng Bước</div>
+      <div style="font-size:.81rem;color:var(--paper-d);line-height:1.85">
+        <div class="mstep"><span class="mstep-n">①</span><div class="mstep-t">Xác định <em>Thượng quái</em> và <em>Hạ quái</em> → tra bảng 8×8 tìm <strong>tên quẻ kép</strong>.</div></div>
+        <div class="mstep"><span class="mstep-n">②</span><div class="mstep-t">Dựa vào vị trí hào động → phân biệt <em>Thể quái</em> và <em>Dụng quái</em>.</div></div>
+        <div class="mstep"><span class="mstep-n">③</span><div class="mstep-t">So sánh ngũ hành Thể–Dụng → xác định <em>Đại Cát / Cát / Bình / Hung / Đại Hung</em>.</div></div>
+        <div class="mstep"><span class="mstep-n">④</span><div class="mstep-t">Đọc <em>ý nghĩa quẻ kép</em> và <em>ý nghĩa hào động</em> để hiểu thông điệp cụ thể.</div></div>
+        <div class="mstep"><span class="mstep-n">⑤</span><div class="mstep-t">Đối chiếu với <em>chủ đề câu hỏi</em> (tình duyên, sự nghiệp...) để đưa ra lời khuyên thực tế.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── 64 QUẺ ── -->
+  <div id="learn-64que" class="lsec">
+    <div class="glass" style="padding:1.1rem;margin-bottom:1rem">
+      <div class="slabel">Tra Cứu · 64 Quẻ Kinh Dịch</div>
+      <input type="search" class="hex64-search" placeholder="Tìm theo tên quẻ..."
+        oninput="filterHex64(this.value)">
+      <div class="hex64-grid" id="hex64-grid"><!-- JS --></div>
+    </div>
+  </div>
+
+</div><!-- /sec-hoc -->
+
+<div id="result" style="display:none"></div>
+</div><!-- /wrap -->
+
+<!-- Hex64 detail modal -->
+<div id="hex64-modal" class="hmodal" onclick="if(event.target===this)closeHex64Modal()">
+  <div class="hm-sheet" id="hex64-modal-content"></div>
+</div>
+
+<!-- History Panel -->
+<div class="hist-overlay" id="histOverlay" onclick="toggleHistory()"></div>
+<div class="hist-panel" id="histPanel">
+  <div class="hist-hdr">
+    <span class="hist-title">📜 LỊCH SỬ GIEO QUẺ</span>
+    <button class="hist-close" onclick="toggleHistory()">✕ Đóng</button>
+  </div>
+  <div class="hist-list" id="histList"></div>
+</div>
+<div class="burst-container" id="burstContainer"></div>
+
+<script>
+// ═══════════════ DATA ═══════════════
+const TR={
+  1:{name:'Càn', zh:'乾',sym:'☰',el:'Kim', lines:[1,1,1]},
+  2:{name:'Đoài',zh:'兌',sym:'☱',el:'Kim', lines:[0,1,1]},
+  3:{name:'Ly',  zh:'離',sym:'☲',el:'Hỏa', lines:[1,0,1]},
+  4:{name:'Chấn',zh:'震',sym:'☳',el:'Mộc', lines:[0,0,1]},
+  5:{name:'Tốn', zh:'巽',sym:'☴',el:'Mộc', lines:[1,1,0]},
+  6:{name:'Khảm',zh:'坎',sym:'☵',el:'Thủy',lines:[0,1,0]},
+  7:{name:'Cấn', zh:'艮',sym:'☶',el:'Thổ', lines:[1,0,0]},
+  8:{name:'Khôn',zh:'坤',sym:'☷',el:'Thổ', lines:[0,0,0]},
+};
+const HT=[
+  [0,0,0,0,0,0,0,0,0],
+  [0, 1,43,14,34, 9, 5,26,11],
+  [0,10,58,38,54,61,60,41,19],
+  [0,13,49,30,55,37,63,22,36],
+  [0,25,17,21,51,42, 3,27,24],
+  [0,44,28,50,32,57,48,18,46],
+  [0, 6,47,64,40,59,29, 4, 7],
+  [0,33,31,56,62,53,39,52,15],
+  [0,12,45,35,16,20, 8,23, 2],
+];
+const HX={
+   1:{name:'Càn',   zh:'乾',m:'Sức mạnh, kiên định — trời vận hành không ngừng, hành động bền bỉ sẽ thành công.'},
+   2:{name:'Khôn',  zh:'坤',m:'Nhu hòa, thuận theo — đất nuôi dưỡng vạn vật, khiêm tốn kiên nhẫn mang lại kết quả.'},
+   3:{name:'Truân', zh:'屯',m:'Khó khăn ban đầu — mầm cây đâm qua đất cứng, kiên trì đừng hành động vội vàng.'},
+   4:{name:'Mông',  zh:'蒙',m:'Khai sáng, học hỏi — người trẻ cầu thầy, tìm hướng dẫn đừng bướng bỉnh.'},
+   5:{name:'Nhu',   zh:'需',m:'Chờ đợi, kiên nhẫn — mây chưa đổ mưa, thời điểm chưa đến hãy chuẩn bị kỹ.'},
+   6:{name:'Tụng',  zh:'訟',m:'Tranh chấp, kiện tụng — cẩn thận va chạm, hòa giải tốt hơn đối đầu.'},
+   7:{name:'Sư',    zh:'師',m:'Tổ chức, lãnh đạo — quân đội kỷ luật, cần người đứng đầu có tài năng.'},
+   8:{name:'Tỷ',    zh:'比',m:'Đoàn kết, hợp tác — nước chảy về biển, liên minh mang lại sức mạnh.'},
+   9:{name:'Tiểu Súc',zh:'小畜',m:'Kiềm chế nhỏ, tích lũy — gió nhẹ cản mây, chưa tiến lớn hãy tích góp dần.'},
+  10:{name:'Lý',    zh:'履',m:'Cẩn thận từng bước — đi trên đuôi hổ, tôn trọng lễ nghĩa không xem thường nguy hiểm.'},
+  11:{name:'Thái',  zh:'泰',m:'Thịnh vượng, hòa hợp — trời đất giao hòa, thời cơ tốt mọi việc hanh thông.'},
+  12:{name:'Bĩ',    zh:'否',m:'Trì trệ, bế tắc — trời đất không giao, thu mình chờ đợi tránh hành động lớn.'},
+  13:{name:'Đồng Nhân',zh:'同人',m:'Hợp tác, cộng đồng — lửa sáng trên trời, đoàn kết vì mục tiêu chung.'},
+  14:{name:'Đại Hữu',zh:'大有',m:'Thịnh vượng lớn — mặt trời trên thiên đình, tài lộc dồi dào địa vị cao.'},
+  15:{name:'Khiêm', zh:'謙',m:'Khiêm tốn, điều hòa — núi nằm dưới đất, khiêm nhường được kính trọng lâu dài.'},
+  16:{name:'Dự',    zh:'豫',m:'Hoan hỷ, chuẩn bị — sấm từ đất vang lên, hành động đúng thời sẽ thành.'},
+  17:{name:'Tùy',   zh:'隨',m:'Đi theo, thích nghi — sấm ẩn vào đầm, linh hoạt thuận theo hoàn cảnh.'},
+  18:{name:'Cổ',    zh:'蠱',m:'Sửa chữa, cải cách — gió rung núi, dọn dẹp sai lầm cũ để tái sinh.'},
+  19:{name:'Lâm',   zh:'臨',m:'Tiến tới, lãnh đạo — đất trên đầm, thời cơ đang đến hãy tiến bước mạnh dạn.'},
+  20:{name:'Quan',  zh:'觀',m:'Quan sát, chiêm nghiệm — gió thổi trên đất, nhìn xa trông rộng trước khi hành động.'},
+  21:{name:'Phệ Hạp',zh:'噬嗑',m:'Quyết đoán, loại bỏ trở ngại — sét lửa cắt qua, xử lý dứt khoát vấn đề tồn đọng.'},
+  22:{name:'Bí',    zh:'賁',m:'Vẻ đẹp bề ngoài — lửa soi núi, hình thức đẹp nhưng đừng quên thực chất.'},
+  23:{name:'Bác',   zh:'剝',m:'Tan rã, mục nát — núi bào mòn, tình thế suy thoái hãy thu mình bảo toàn.'},
+  24:{name:'Phục',  zh:'復',m:'Trở về, hồi phục — sấm trong lòng đất, chu kỳ mới bắt đầu hy vọng hồi sinh.'},
+  25:{name:'Vô Vọng',zh:'无妄',m:'Vô tư, thuần khiết — sấm dưới trời, hành động chân thật không mưu tính ích kỷ.'},
+  26:{name:'Đại Súc',zh:'大畜',m:'Tích lũy lớn — trời chứa trong núi, tích năng lượng chờ thời cơ bùng phát.'},
+  27:{name:'Di',    zh:'頤',m:'Nuôi dưỡng, cẩn thận — núi dưới sấm, chú ý lời ăn tiếng nói và nguồn dưỡng chất.'},
+  28:{name:'Đại Quá',zh:'大過',m:'Quá mức, áp lực lớn — đầm nhấn chìm gió, gánh nặng vượt sức cần hành động gấp.'},
+  29:{name:'Khảm',  zh:'坎',m:'Nguy hiểm, thử thách — nước chảy qua vực, kiên định vượt qua bằng đức hạnh.'},
+  30:{name:'Ly',    zh:'離',m:'Sáng sủa, phụ thuộc — hai ngọn lửa, bám vào điều đúng để lan tỏa ánh sáng.'},
+  31:{name:'Hàm',   zh:'咸',m:'Cảm ứng, thu hút — đầm trên núi, cảm xúc chân thành tạo liên kết tốt đẹp.'},
+  32:{name:'Hằng',  zh:'恒',m:'Bền vững, kiên định — sấm và gió cùng nhau, kiên trì theo con đường đúng đắn.'},
+  33:{name:'Độn',   zh:'遯',m:'Rút lui, ẩn mình — trời trên núi, thời thế bất lợi hãy lui về tích lũy.'},
+  34:{name:'Đại Tráng',zh:'大壯',m:'Mạnh mẽ, quyết đoán — sấm chấn động trên trời, dùng sức đúng lúc đừng bất cẩn.'},
+  35:{name:'Tấn',   zh:'晉',m:'Tiến lên, thăng tiến — mặt trời mọc trên đất, được tin tưởng và tiến bộ vững chắc.'},
+  36:{name:'Minh Di',zh:'明夷',m:'Ánh sáng bị che — mặt trời lặn xuống đất, ẩn tài năng kiên nhẫn trong nghịch cảnh.'},
+  37:{name:'Gia Nhân',zh:'家人',m:'Gia đình, trật tự — gió từ lửa, vai trò rõ ràng trong gia đình tạo hòa thuận.'},
+  38:{name:'Khuê',  zh:'睽',m:'Mâu thuẫn, đối lập — lửa trên đầm, bất đồng quan điểm cần tìm điểm chung.'},
+  39:{name:'Kiển',  zh:'蹇',m:'Trở ngại, khó khăn — nước trên núi, đừng cố tiến mà hãy tìm sự trợ giúp.'},
+  40:{name:'Giải',  zh:'解',m:'Giải phóng, tháo gỡ — sấm và mưa rửa sạch, trở ngại dỡ bỏ hãy hành động nhanh.'},
+  41:{name:'Tổn',   zh:'損',m:'Giảm bớt, hi sinh — núi dưới đầm, hi sinh phần nhỏ để giữ cái lớn hơn.'},
+  42:{name:'Ích',   zh:'益',m:'Thêm vào, lợi ích — gió và sấm, thời điểm phát triển hãy nắm lấy cơ hội.'},
+  43:{name:'Quải',  zh:'夬',m:'Quyết đoán, đột phá — đầm trên trời, đối mặt thẳng thắn loại bỏ điều xấu.'},
+  44:{name:'Cấu',   zh:'姤',m:'Gặp gỡ, cám dỗ — gió dưới trời, cảnh giác gặp gỡ bất ngờ giữ nguyên tắc.'},
+  45:{name:'Tụy',   zh:'萃',m:'Tập hợp, đoàn tụ — đầm trên đất, tập trung sức mạnh cùng nhau.'},
+  46:{name:'Thăng', zh:'升',m:'Thăng tiến, phát triển — gió trong lòng đất, bước lên từng bước với lòng quyết tâm.'},
+  47:{name:'Khốn',  zh:'困',m:'Khốn cùng, kiệt sức — đầm không có nước, khó khăn tạm thời hãy giữ phẩm giá.'},
+  48:{name:'Tỉnh',  zh:'井',m:'Giếng nước, nguồn lực — nước trong gỗ, nguồn lực vô tận nếu biết khai thác đúng.'},
+  49:{name:'Cách',  zh:'革',m:'Cải cách, đổi mới — lửa trong đầm, thay đổi triệt để khi thời cơ đến.'},
+  50:{name:'Đỉnh',  zh:'鼎',m:'Đỉnh cao, thành tựu — lửa trên gỗ, tài năng và nguồn lực kết hợp tạo thành công.'},
+  51:{name:'Chấn',  zh:'震',m:'Chấn động, thức tỉnh — sấm sét, biến cố bất ngờ hãy giữ bình tĩnh vượt qua.'},
+  52:{name:'Cấn',   zh:'艮',m:'Dừng lại, tĩnh tâm — hai ngọn núi, biết lúc nào nên dừng là đức hạnh lớn.'},
+  53:{name:'Tiệm',  zh:'漸',m:'Tiến dần, từng bước — gió thổi trên núi, phát triển từ từ bền vững hơn đột phá.'},
+  54:{name:'Quy Muội',zh:'歸妹',m:'Hôn nhân, phụ thuộc — sấm trên đầm, quan hệ bất bình đẳng cần cẩn thận.'},
+  55:{name:'Phong', zh:'豐',m:'Phồn thịnh, đỉnh cao — sấm và lửa, thời kỳ cực thịnh đừng tự mãn.'},
+  56:{name:'Lữ',    zh:'旅',m:'Du hành, tạm thời — lửa trên núi, xa lạ đất khách hãy thận trọng từng bước.'},
+  57:{name:'Tốn',   zh:'巽',m:'Thuận theo, nhún nhường — gió tiếp gió, kiên trì nhẹ nhàng thấm sâu.'},
+  58:{name:'Đoài',  zh:'兌',m:'Vui vẻ, hài lòng — hai đầm, lời nói và niềm vui chân thành tạo liên kết.'},
+  59:{name:'Hoán',  zh:'渙',m:'Phân tán, hòa giải — gió trên nước, tan băng giá hóa giải mâu thuẫn.'},
+  60:{name:'Tiết',  zh:'節',m:'Tiết chế, giới hạn — nước trong đầm, đặt giới hạn hợp lý để phát triển bền.'},
+  61:{name:'Trung Phu',zh:'中孚',m:'Thành tín, nội tâm — gió trên đầm, lòng thành tín cảm hóa được người xa.'},
+  62:{name:'Tiểu Quá',zh:'小過',m:'Vượt quá nhỏ — sấm trên núi, làm việc nhỏ thôi chưa nên mưu tính lớn.'},
+  63:{name:'Ký Tế', zh:'既濟',m:'Hoàn thành — nước trên lửa, thành công đã đến đừng chủ quan mà giữ gìn.'},
+  64:{name:'Vị Tế', zh:'未濟',m:'Chưa hoàn thành — lửa trên nước, tiềm năng lớn nhưng chưa đến lúc kiên nhẫn.'},
+};
+const YC={
+1:{g:'元亨。利貞。',y:['初九：潛龍勿用。','九二：見龍在田，利見大人。','九三：君子終日乾乾，夕惕若；厲，无咎。','九四：或躍在淵，无咎。','九五：飛龍在天，利見大人。','上九：亢龍，有悔。'],x:'天行健，君子以自強不息。'},
+2:{g:'元亨。利牝馬之貞。 君子有攸往，先迷後得主。 利西南得朋，東北喪朋。安貞，吉。',y:['初六：履霜，堅冰至。','六二：直方大，不習无不利。','六三：含章，可貞。或從王事，无成有終。','六四：括囊，无咎无譽。','六五：黃裳，元吉。','上六：龍戰于野，其血玄黃。'],x:'地勢坤，君子以厚德載物。'},
+3:{g:'元亨，利貞。勿用有攸往，利建侯。',y:['初九：磐桓，利居貞，利建侯。','九五：屯其膏；小貞吉，大貞凶。','六二：屯如邅如，乘馬班如，匪寇婚媾，女子貞不字，十年乃字。','六三：即鹿无虞，惟入于林中，君子幾不如舍，往吝。','六四：乘馬班如，求婚媾，往，吉无不利。','上六：乘馬班如，泣血漣如。'],x:'雲雷，屯；君子以經綸。'},
+4:{g:'亨。匪我求童蒙，童蒙求我。初筮告，再三瀆，瀆則不告。利貞。',y:['九二：包蒙吉，納婦吉，子克家。','上九：擊蒙，不利為寇，利禦寇。','初六：發蒙，利用刑人，用說桎梏，以往吝。','六三：勿用取女，見金夫，不有躬，无攸利。','六四：困蒙，吝。','六五：童蒙，吉。'],x:'山下出泉，蒙；君子以果行育德。'},
+5:{g:'有孚，光亨。貞吉，利涉大川。',y:['初九：需于郊，利用恆，无咎。','九二：需于沙，小有言，終吉。','九三：需于泥，致寇至。','九五：需于酒食，貞吉。','六四：需于血，出自穴。','上六：入于穴，有不速之客三人來，敬之終吉。'],x:'雲上於天，需；君子以飲食宴樂。'},
+6:{g:'有孚，窒，惕，中吉，終凶。利見大人，不利涉大川。',y:['九二：不克訟，歸而逋，其邑人三百戶无眚。','九四：不克訟，復即命渝，安貞吉。','九五：訟，元吉。','上九：或錫之鞶帶，終朝三褫之。','初六：不永所事，小有言，終吉。','六三：食舊德，貞厲，終吉。或從王事，无成。'],x:'天與水違行，訟；君子以作事謀始。'},
+7:{g:'貞丈人吉，无咎。',y:['九二：在師中吉，无咎；王三錫命。','初六：師出以律，否臧，凶。','六三：師或輿尸，凶。','六四：師左次，无咎。','六五：田有禽，利執言，无咎。長子帥師，弟子輿尸，貞凶。','上六：大君有命，開國承家，小人勿用。'],x:'地中有水，師；君子以容民畜衆。'},
+8:{g:'吉。原筮元永貞，无咎。不寧方來，後夫凶。',y:['九五：顯比。王用三驅，失前禽，邑人不誡，吉。','初六：有孚，比之，无咎。有孚盈缶，終來有它，吉。','六二：比之自內，貞吉。','六三：比之匪人。','六四：外比之，貞吉。','上六：比之无首，凶。'],x:'地上有水，比；先王以建萬國，親諸侯。'},
+9:{g:'亨。密雲不雨，自我西郊。',y:['初九：復自道，何其咎，吉。','九二：牽復，吉。','九三：輿說輻，夫妻反目。','九五：有孚攣如，富以其鄰。','上九：既雨既處，尚德載，婦貞厲，月幾望，君子征凶。','六四：有孚，血去惕出，无咎。'],x:'風行天上，小畜，君子以懿文德。'},
+10:{g:'',y:['初九：素履，往无咎。','九二：履道坦坦，幽人貞吉。','九四：履虎尾，愬愬終吉。','九五：夬履，貞厲。','上九：視履考祥，其旋元吉。','六三：眇能視，跛能履，履虎尾，咥人，凶。武人為于大君。'],x:'上天下澤，履；君子以辨上下，定民志。'},
+11:{g:'小往大來，吉亨。',y:['初九：拔茅茹以其彙，征吉。','九二：包荒。用馮河，不遐遺；朋亡。得尚于中行。','九三：无平不陂，无往不復，艱貞无咎。勿恤其孚，于食有福。','六四：翩翩，不富以其鄰；不戒以孚。','六五：帝乙歸妹，以祉，元吉。','上六：城復于隍，勿用師，自邑告命，貞吝。'],x:'天地交，泰；后以財成天地之道，輔相天地之宜，以左右民。'},
+12:{g:'',y:['','','','','',''],x:'天地不交，否；君子以儉德辟難，不可榮以祿。'},
+13:{g:'',y:['初九：同人于門，無咎。','九三：伏戎于莽，升其高陵，三歲不興。','九四：乘其墉，弗克，攻吉。','九五：同人，先號啕而后笑。大師克相遇。','上九：同人于郊，無悔。','六二：同人于宗，吝。'],x:'天與火，同人；君子以類族辨物。'},
+14:{g:'元亨。',y:['初九：无交害，匪咎，艱則无咎。','九二：大車以載，有攸往，无咎。','九三：公用亨于天子，小人弗克。','九四：匪其彭，无咎。','上九：自天佑之，吉无不利。','六五：厥孚交如，威如；吉。'],x:'火在天上，大有；君子以遏惡揚善，順天休命。'},
+15:{g:'亨，君子有終。',y:['九三：勞謙君子，有終吉。','初六：謙謙君子，用涉大川，吉。','六二：鳴謙，貞吉。','六四：无不利，撝謙。','六五：不富，以其鄰，利用侵伐，无不利。','上六：鳴謙，利用行師，征邑國。'],x:'地中有山，謙；君子以裒多益寡，稱物平施。'},
+16:{g:'利建侯行師。',y:['九四：由豫，大有得。勿疑。朋盍簪。','初六：鳴豫，凶。','六二：介于石，不終日，貞吉。','六三：盱豫，悔。遲有悔。','六五：貞疾，恆不死。','上六：冥豫，成有渝，无咎。'],x:'雷出地奮，豫。'},
+17:{g:'元亨。利貞。无咎。',y:['初九：官有渝，貞吉。出門交有功。','九四：隨有獲，貞凶。有孚在道，以明，何咎。','九五：孚于嘉，吉。','六二：系小子，失丈夫。','六三：系丈夫，失小子。隨，有求得利，居貞。','上六：拘系之，乃從維之。王用亨于西山。'],x:'澤中有雷，隨；君子以嚮晦入宴息。'},
+18:{g:'元亨。利涉大川。先甲三日，後甲三日。',y:['九二：幹母之蠱，不可貞。','九三：幹父之蠱，小有悔，无大咎。','上九：不事王侯，高尚其事。','初六：幹父之蠱，有子考，无咎，厲終吉。','六四：裕父之蠱，往見吝。','六五：幹父之蠱，用譽。'],x:'山下有風，蠱；君子以振民育德。'},
+19:{g:'元亨。利貞。至于八月有凶。',y:['初九：咸臨，貞吉。','九二：咸臨，吉无不利。','六三：甘臨，无攸利。既憂之，无咎。','六四：至臨，无咎。','六五：知臨，大君之宜，吉。','上六：敦臨，吉无咎。'],x:'澤上有地，臨；君子以教思无窮，容保民无疆。'},
+20:{g:'盥而不荐，有孚顒若。',y:['九五：觀我生，君子无咎。','上九：觀其生，君子无咎。','初六：童觀，小人无咎，君子吝。','六二：窺觀，利女貞。','六三：觀我生，進退。','六四：觀國之光，利用賓于王。'],x:'風行地上，觀；先王以省方，觀民設教。'},
+21:{g:'亨。利用獄。',y:['初九：屨校滅趾，无咎。','九四：噬乾胏，得金矢，利艱貞，吉。','上九：何校滅耳，凶。','六二：噬膚滅鼻，无咎。','六三：噬臘肉，遇毒；小吝，无咎。','六五：噬乾肉，得黃金，貞厲，无咎。'],x:'雷電噬嗑；先王以明罰敕法。'},
+22:{g:'亨。小利有攸往。',y:['初九：賁其趾，舍車而徒。','九三：賁如濡如，永貞吉。','上九：白賁，无咎。','六二：賁其須。','六四：賁如皤如，白馬翰如，匪寇婚媾。','六五：賁於丘園，束帛戔戔，吝，終吉。'],x:'山下有火，賁；君子以明庶政，无敢折獄。'},
+23:{g:'不利。有攸往。',y:['上九：碩果不食，君子得輿，小人剝廬。','初六：剝牀以足，蔑貞凶。','六二：剝牀以辨，蔑貞凶。','六三：剝之，无咎。','六四：剝牀以膚，凶。','六五：貫魚，以宮人寵，无不利。'],x:'山附地上，剝；上以厚下，安宅。'},
+24:{g:'亨。出入无疾，朋來无咎。反復其道，七日來復，利有攸往。',y:['初九：不復遠，无袛悔，元吉。','六二：休復，吉。','六三：頻復，厲无咎。','六四：中行獨復。','六五：敦復，无悔。','上六：迷復，凶，有災眚。用行師，終有大敗，以其國君，凶；至于十年，不克征。'],x:'雷在地中，復；先王以至日閉關，商旅不行，后不省方。'},
+25:{g:'元亨。利貞。其匪正有眚，不利有攸往。',y:['初九：无妄，往吉。','九四：可貞，无咎。','九五：无妄之疾，勿藥有喜。','上九：无妄，行有眚，无攸利。','六二：不耕穫，不菑畬，則利有攸往。','六三：无妄之災，或系之牛，行人之得，邑人之災。'],x:'天下雷行，物與无妄；先王以茂對時，育萬物。'},
+26:{g:'利貞，不家食吉，利涉大川。',y:['初九：有厲利已。','九二：輿說輹。','九三：良馬逐，利艱貞。曰閑輿衛，利有攸往。','上九：何天之衢，亨。','六四：童牛之牿，元吉。','六五：豶豕之牙，吉。'],x:'天在山中，大畜；君子以多識前言往行，以畜其德。'},
+27:{g:'貞吉。觀頤，自求口實。',y:['初九：舍爾靈龜，觀我朵頤，凶。','上九：由頤，厲吉，利涉大川。','六二：顛頤，拂經，于丘頤，征凶。','六三：拂頤，貞凶，十年勿用，无攸利。','六四：顛頤吉，虎視眈眈，其欲逐逐，无咎。','六五：拂經，居貞吉，不可涉大川。'],x:'山下有雷，頤；君子以慎言語，節飲食。'},
+28:{g:'棟橈，利有攸往，亨。',y:['九二：枯楊生稊，老夫得其女妻，无不利。','九三：棟橈，凶。','九四：棟隆，吉。有它吝。','九五：枯楊生華，老婦得其士夫，无咎无譽。','初六：藉用白茅，无咎。','上六：過涉滅頂，凶，无咎。'],x:'澤滅木，大過。'},
+29:{g:'有孚，維心亨。行有尚。',y:['九二：坎有險，求小得。','九五：坎不盈，祗既平，无咎。','初六：習坎，入于坎窞，凶。','六三：來之坎坎，險且枕，入于坎窞，勿用。','六四：樽酒簋貳，用缶，納約自牖，終无咎。','上六：係用徽纆，寘于叢棘，三歲不得，凶。'],x:'水洊至，習坎；君子以常德行，習教事。'},
+30:{g:'利貞。亨。畜牝牛，吉。',y:['初九：履錯然，敬之无咎。','九三：日昃之離，不鼓缶而歌，則大耋之嗟，凶。','九四：突如其來如，焚如，死如，棄如。','上九：王用出征，有嘉折首，獲匪其醜，无咎。','六二：黃離，元吉。','六五：出涕沱若，戚嗟若，吉。'],x:'明兩作離，大人以繼明照于四方。'},
+31:{g:'亨。利貞。取女吉。',y:['九三：咸其股，執其隨，往吝。','九四：貞吉悔亡，憧憧往來，朋從爾思。','九五：咸其脢，无悔。','初六：咸其拇。','六二：咸其腓，凶，居吉。','上六：咸其輔，頰，舌。'],x:'山上有澤，咸；君子以虛受人。'},
+32:{g:'亨，无咎。利貞，利有攸往。',y:['九二：悔亡。','九三：不恆其德，或承之羞，貞吝。','九四：田无禽。','初六：浚恆，貞凶，无攸利。','六五：恆其德，貞，婦人吉，夫子凶。','上六：振恆，凶。'],x:'雷風，恆；君子以立不易方。'},
+33:{g:'亨。小利貞。',y:['九三：系遯，有疾厲，畜臣妾吉。','九四：好遯君子吉，小人否。','九五：嘉遯，貞吉。','上九：肥遯，无不利。','初六：遯尾，厲，勿用有攸往。','六二：執之用黃牛之革，莫之勝說。'],x:'天下有山，遯；君子以遠小人，不惡而嚴。'},
+34:{g:'利貞。',y:['初九：壯于趾，征凶，有孚。','九二：貞吉。','九三：小人用壯，君子用罔，貞厲。羝羊觸藩，羸其角。','九四：貞吉悔亡，藩決不羸，壯于大輿之輹。','六五：喪羊于易，无悔。','上六：羝羊觸藩，不能退，不能遂，无攸利，艱則吉。'],x:'雷在天上，大壯；君子以非禮弗履。'},
+35:{g:'康侯用錫馬蕃庶，晝日三接。',y:['九四：晉如鼫鼠，貞厲。','上九：晉其角，維用伐邑，厲吉无咎，貞吝。','初六：晉如，摧如，貞吉。罔孚，裕无咎。','六二：晉如，愁如，貞吉。受茲介福，于其王母。','六三：眾允，悔亡。','六五：悔亡，失得勿恤，往吉无不利。'],x:'明出地上，晉；君子以自昭明德。'},
+36:{g:'利艱貞。',y:['初九：明夷于飛，垂其翼。君子于行，三日不食，有攸往，主人有言。','九三：明夷于南狩，得其大首，不可疾貞。','六二：明夷，夷于左股，用拯馬壯，吉。','六四：入于左腹，獲明夷之心，于出門庭。','六五：箕子之明夷，利貞。','上六：不明晦，初登于天，后入于地。'],x:'明入地中，明夷；君子以蒞眾，用晦而明。'},
+37:{g:'利女貞。',y:['初九：閑有家，悔亡。','九三：家人嗃嗃，悔厲吉；婦子嘻嘻，終吝。','九五：王假有家，勿恤。吉。','上九：有孚威如，終吉。','六二：无攸遂，在中饋，貞吉。','六四：富家，大吉。'],x:'風自火出，家人；君子以言有物，而行有恆。'},
+38:{g:'小事吉。',y:['初九：悔亡，喪馬勿逐，自復；見惡人无咎。','九二：遇主于巷，无咎。','九四：睽孤，遇元夫，交孚，厲无咎。','上九：睽孤，見豕負涂，載鬼一車，先張之弧，后說之弧，匪寇婚媾，往遇雨則吉。','六三：見輿曳，其牛掣，其人天且劓，无初有終。','六五：悔亡，厥宗噬膚，往何咎。'],x:'上火下澤，睽；君子以同而異。'},
+39:{g:'利西南，不利東北；利見大人，貞吉。',y:['九三：往蹇來反。','九五：大蹇朋來。','初六：往蹇，來譽。','六二：王臣蹇蹇，匪躬之故。','六四：往蹇來連。','上六：往蹇來碩，吉；利見大人。'],x:'山上有水，蹇；君子以反身修德。'},
+40:{g:'利西南，无所往，其來復吉。有攸往，夙吉。',y:['九二：田獲三狐，得黃矢，貞吉。','九四：解而拇，朋至斯孚。','初六：无咎。','六三：負且乘，致寇至，貞吝。','六五：君子維有解，吉；有孚于小人。','上六：公用射隼，于高墉之上，獲之，无不利。'],x:'雷雨作，解；君子以赦過宥罪。'},
+41:{g:'有孚，元吉。无咎，可貞，利有攸往。曷之用？二簋可用享。',y:['初九：已事遄往，无咎，酌損之。','九二：利貞，征凶，弗損益之。','上九：弗損益之，无咎，貞吉，利有攸往，得臣无家。','六三：三人行，則損一人；一人行，則得其友。','六四：損其疾，使遄有喜，无咎。','六五：或益之，十朋之龜弗克違，元吉。'],x:'山下有澤，損；君子以懲忿窒欲。'},
+42:{g:'利有攸往。利涉大川。',y:['初九：利用為大作，元吉，无咎。','九五：有孚惠心，勿問元吉。有孚惠我德。','上九：莫益之，或擊之，立心勿恆，凶。','六二：或益之，十朋之龜弗克違，永貞吉。王用享于帝，吉。','六三：益之用凶事，无咎。有孚中行，告公用圭。','六四：中行，告公從。利用為依遷國。'],x:'風雷，益；君子以見善則遷，有過則改。'},
+43:{g:'揚于王庭，孚號，有厲，告自邑，不利即戎，利有攸往。',y:['初九：壯于前趾，往不勝為咎。','九二：惕號，莫夜有戎，勿恤。','九三：壯于頄，有凶。君子夬夬，獨行遇雨，若濡有慍，无咎。','九四：臀无膚，其行次且。牽羊悔亡，聞言不信。','九五：莧陸夬夬，中行无咎。','上六：无號，終有凶。'],x:'澤上于天，夬；君子以施祿及下，居德則忌。'},
+44:{g:'女壯，勿用取女。',y:['九二：包有魚，无咎，不利賓。','九三：臀无膚，其行次且，厲，无大咎。','九四：包无魚，起凶。','九五：以杞包瓜，含章，有隕自天。','上九：姤其角，吝，无咎。','初六：系于金柅，貞吉，有攸往，見凶，羸豕孚踟躅。'],x:'天下有風，姤；后以施命誥四方。'},
+45:{g:'亨。王假有廟，利見大人，亨。利貞。用大牲吉，利有攸往。',y:['九四：大吉，无咎。','九五：萃有位，无咎。匪孚，元永貞，悔亡。','初六：有孚不終，乃亂乃萃，若號一握為笑，勿恤，往无咎。','六二：引吉，无咎，孚乃利用禴。','六三：萃如，嗟如，无攸利，往无咎，小吝。','上六：齎咨涕洟，无咎。'],x:'澤上于地，萃；君子以除戎器，戒不虞。'},
+46:{g:'元亨，用見大人，勿恤，南征吉。',y:['九二：孚乃利用禴，无咎。','九三：升虛邑。','初六：允升，大吉。','六四：王用亨于岐山，吉无咎。','六五：貞吉，升階。','上六：冥升，利于不息之貞。'],x:'地中生木，升；君子以順德，積小以高大。'},
+47:{g:'亨，貞大人吉，无咎，有言不信。',y:['九二：困于酒食，朱紱方來，利用亨祀，征凶，无咎。','九四：來徐徐，困于金車，吝，有終。','九五：劓刖，困于赤紱，乃徐有說，利用祭祀。','初六：臀困于株木，入于幽谷，三歲不覿。','六三：困于石，據于蒺藜，入于其宮，不見其妻，凶。','上六：困于葛藟，于臲卼，曰動悔。有悔，征吉。'],x:'澤无水，困；君子以致命遂志。'},
+48:{g:'改邑不改井，无喪无得，往來井井。汔至亦未繘井。羸其瓶，凶。',y:['九二：井谷射鮒，瓮敝漏。','九三：井渫不食，為我心惻，可用汲，王明，并受其福。','九五：井冽，寒泉食。','初六：井泥不食，舊井无禽。','六四：井甃，无咎。','上六：井收勿幕，有孚元吉。'],x:'木上有水，井；君子以勞民勸相。'},
+49:{g:'巳日乃孚，元亨。利貞。悔亡。',y:['初九：鞏用黃牛之革。','九三：征凶，貞厲，革言三就，有孚。','九四：悔亡，有孚改命，吉。','九五：大人虎變，未占有孚。','六二：巳日乃革之，征吉，无咎。','上六：君子豹變，小人革面，征凶，居貞吉。'],x:'澤中有火，革；君子以治歷明時。'},
+50:{g:'元吉，亨。',y:['九二：鼎有實，我仇有疾，不我能即，吉。','九三：鼎耳革，其行塞，雉膏不食，方雨虧悔，終吉。','九四：鼎折足，覆公餗，其形渥，凶。','上九：鼎玉鉉，大吉，无不利。','初六：鼎顛趾，利出否，得妾以其子，无咎。','六五：鼎黃耳金鉉，利貞。'],x:'木上有火，鼎；君子以正位凝命。'},
+51:{g:'亨。震來虩虩，笑言啞啞。震驚百里，不喪匕鬯。',y:['初九：震來虩虩，后笑言啞啞，吉。','九四：震遂泥。','六二：震來厲，億喪貝，躋于九陵，勿逐，七日得。','六三：震蘇蘇，震行无眚。','六五：震往來厲，億无喪，有事。','上六：震索索，視矍矍，征凶。震不于其躬，于其鄰，无咎。婚媾有言。'],x:'洊雷，震；君子以恐懼修省。'},
+52:{g:'艮其背，不獲其身，行其庭，不見其人，无咎。',y:['九三：艮其限，列其夤，厲薰心。','上九：敦艮，吉。','初六：艮其趾，无咎，利永貞。','六二：艮其腓，不拯其隨，其心不快。','六四：艮其身，无咎。','六五：艮其輔，言有序，悔亡。'],x:'兼山，艮；君子以思不出其位。'},
+53:{g:'女歸吉，利貞。',y:['九三：鴻漸于陸，夫征不復，婦孕不育，凶；利禦寇。','九五：鴻漸于陵，婦三歲不孕，終莫之勝，吉。','上九：鴻漸于陸，其羽可用為儀，吉。','初六：鴻漸于干，小子厲，有言，无咎。','六二：鴻漸于磐，飲食衎衎，吉。','六四：鴻漸于木，或得其桷，无咎。'],x:'山上有木，漸；君子以居賢德，善俗。'},
+54:{g:'征凶，无攸利。',y:['初九：歸妹以娣，跛能履，征吉。','九二：眇能視，利幽人之貞。','九四：歸妹愆期，遲歸有時。','六三：歸妹以須，反歸以娣。','六五：帝乙歸妹，其君之袂，不如其娣之袂良，月幾望，吉。','上六：女承筐无實，士刲羊无血，无攸利。'],x:'澤上有雷，歸妹；君子以永終知敝。'},
+55:{g:'亨。王假之，勿憂，宜日中。',y:['初九：遇其配主，雖旬无咎，往有尚。','九三：豐其沛，日中見沫，折其右肱，无咎。','九四：豐其蔀，日中見斗，遇其夷主，吉。','六二：豐其蔀，日中見斗，往得疑疾，有孚發若，吉。','六五：來章，有慶譽，吉。','上六：豐其屋，蔀其家，窺其戶，闃其无人，三歲不觌，凶。'],x:'雷電皆至，豐；君子以折獄致刑。'},
+56:{g:'小亨，旅貞吉。',y:['九三：旅焚其次，喪其童僕，貞厲。','九四：旅于處，得其資斧，我心不快。','上九：鳥焚其巢，旅人先笑后號咷。喪牛于易，凶。','初六：旅瑣瑣，斯其所取災。','六二：旅即次，懷其資，得童僕貞。','六五：射雉一矢亡，終以譽命。'],x:'山上有火，旅；君子以明慎用刑，而不留獄。'},
+57:{g:'小亨。利有攸往。利見大人。',y:['九二：巽在牀下，用史巫紛若，吉无咎。','九三：頻巽，吝。','九五：貞吉悔亡，无不利。无初有終，先庚三日，后庚三日，吉。','上九：巽在牀下，喪其資斧，貞凶。','初六：進退，利武人之貞。','六四：悔亡，田獲三品。'],x:'隨風，巽；君子以申命行事。'},
+58:{g:'亨。利貞。',y:['初九：和兌，吉。','九二：孚兌，吉，悔亡。','九四：商兌，未寧，介疾有喜。','九五：孚于剝，有厲。','六三：來兌，凶。','上六：引兌。'],x:'麗澤，兌；君子以朋友講習。'},
+59:{g:'亨。王假有廟，利涉大川，利貞。',y:['九二：渙奔其机，悔亡。','九五：渙汗其大號，渙王居，无咎。','上九：渙其血，去逖出，无咎。','初六：用拯馬壯，吉。','六三：渙其躬，无悔。','六四：渙其群，元吉。渙有丘，匪夷所思。'],x:'風行水上，渙；先王以享于帝立廟。'},
+60:{g:'亨。苦節不可貞。',y:['初九：不出戶庭，无咎。','九二：不出門庭，凶。','九五：甘節，吉；往有尚。','六三：不節若，則嗟若，无咎。','六四：安節，亨。','上六：苦節，貞凶，悔亡。'],x:'澤上有水，節；君子以制數度，議德行。'},
+61:{g:'豚魚吉，利涉大川，利貞。',y:['初九：虞吉，有他不燕。','九二：鳴鶴在陰，其子和之，我有好爵，吾與爾靡之。','九五：有孚攣如，无咎。','上九：翰音登于天，貞凶。','六三：得敵，或鼓或罷，或泣或歌。','六四：月几望，馬匹亡，无咎。'],x:'澤上有風，中孚；君子以議獄緩死。'},
+62:{g:'亨。利貞。可小事，不可大事。飛鳥遺之音，不宜上宜下，大吉。',y:['九三：弗過防之，從或戕之，凶。','九四：无咎，弗過遇之。往厲必戒，勿用永貞。','初六：飛鳥以凶。','六二：過其祖，遇其妣；不及其君，遇其臣；无咎。','六五：密云不雨，自我西郊，公弋取彼在穴。','上六：弗遇過之，飛鳥離之，凶，是謂災眚。'],x:'山上有雷，小過；君子以行過乎恭，喪過乎哀，用過乎儉。'},
+63:{g:'亨小。利貞。初吉終亂。',y:['初九：曳其輪，濡其尾，无咎。','九三：高宗伐鬼方，三年克之，小人勿用。','九五：東鄰殺牛，不如西鄰之禴祭，實受其福。','六二：婦喪其茀，勿逐，七日得。','六四：繻有衣袽，終日戒。','上六：濡其首，厲。'],x:'水在火上，既濟；君子以思患而豫防之。'},
+64:{g:'亨。小狐汔濟，濡其尾，无攸利。',y:['九二：曳其輪，貞吉。','九四：貞吉，悔亡，震用伐鬼方，三年有賞于大國。','上九：有孚于飲酒，无咎，濡其首，有孚失是。','初六：濡其尾，吝。','六三：未濟，征凶，利涉大川。','六五：貞吉，无悔，君子之光，有孚，吉。'],x:'火在水上，未濟；君子以慎辨物居方。'}
+};
+const SINH={Kim:'Thủy',Thủy:'Mộc',Mộc:'Hỏa',Hỏa:'Thổ',Thổ:'Kim'};
+const KHAC={Kim:'Mộc',Mộc:'Thổ',Thổ:'Thủy',Thủy:'Hỏa',Hỏa:'Kim'};
+const GIO=['','Tý(23-1h)','Sửu(1-3h)','Dần(3-5h)','Mão(5-7h)',
+  'Thìn(7-9h)','Tị(9-11h)','Ngọ(11-13h)','Mùi(13-15h)',
+  'Thân(15-17h)','Dậu(17-19h)','Tuất(19-21h)','Hợi(21-23h)'];
+const TOPICS={daily:{label:'Hàng ngày',icon:'📅'},love:{label:'Tình yêu',icon:'💕'},
+  marriage:{label:'Hôn nhân',icon:'💍'},career:{label:'Sự nghiệp',icon:'💼'},
+  wealth:{label:'Tài lộc',icon:'💰'},health:{label:'Sức khỏe',icon:'🏥'},
+  friend:{label:'Bạn bè',icon:'👥'},study:{label:'Học tập',icon:'📚'},
+  travel:{label:'Du hành',icon:'✈️'},business:{label:'Giao dịch',icon:'🤝'}};
+
+// ═══════════════ FORTUNE ═══════════════
+function getFortune(tEl,dEl){
+  if(SINH[dEl]===tEl) return{level:'Đại Cát',zh:'大 吉',cls:'f-dacat',icon:'🌟',reason:'Dụng sinh Thể — hoàn cảnh thuận lợi, quý nhân phù trợ, mưu sự dễ thành.'};
+  if(tEl===dEl)       return{level:'Cát',    zh:'吉',  cls:'f-cat',  icon:'✅',reason:'Thể Dụng Tỷ Hòa — cùng ngũ hành, đồng lòng hợp tác, công việc vững chắc.'};
+  if(KHAC[tEl]===dEl) return{level:'Bình',   zh:'平',  cls:'f-binh', icon:'⚖️',reason:'Thể khắc Dụng — phải nỗ lực, hao tổn sức lực nhưng vẫn làm chủ tình thế.'};
+  if(SINH[tEl]===dEl) return{level:'Hung',   zh:'凶',  cls:'f-hung', icon:'⚠️',reason:'Thể sinh Dụng — hao tài tốn sức, cho nhiều hơn nhận.'};
+  if(KHAC[dEl]===tEl) return{level:'Đại Hung',zh:'大 凶',cls:'f-dahung',icon:'🔴',reason:'Dụng khắc Thể — hoàn cảnh áp chế, dễ gặp tai họa, nên lui bước.'};
+  return{level:'Bình',zh:'平',cls:'f-binh',icon:'⚖️',reason:'Quan hệ trung tính.'};
+}
+
+// ═══════════════ DOMAIN ADVICE ═══════════════
+function getAdvice(topic,fl,upper,lower,movLine){
+  const tEl=(movLine<=3?TR[upper]:TR[lower]).el;
+  const dEl=(movLine<=3?TR[lower]:TR[upper]).el;
+  const hasKham=upper===6||lower===6,hasDoi=upper===2||lower===2;
+  const hasChan=upper===4||lower===4,hasLy=upper===3||lower===3;
+  const hasTon=upper===5||lower===5;
+  const M={
+    love:{
+      'Đại Cát':{m:'Đối phương chủ động, tình cảm đến thuận lợi — thời điểm tốt để tiến tới. Người kia có cảm tình sâu sắc và có thể mang đến hạnh phúc.',t:'Hãy thể hiện tình cảm chân thành, cơ hội không đến hai lần.'},
+      'Cát':{m:'Hai người tương đồng tâm tính, tình cảm ổn định và bền vững. Mối quan hệ dễ phát triển thành gắn bó lâu dài.',t:'Tiếp tục vun đắp bằng sự chân thành và kiên định.'},
+      'Bình':{m:'Tình cảm cần nỗ lực theo đuổi, hao tổn tâm sức nhưng vẫn có khả năng thành. Cần chủ động và kiên trì hơn.',t:'Đừng nóng vội, từng bước tiếp cận sẽ hiệu quả hơn.'},
+      'Hung':{m:'Bạn đang đầu tư nhiều hơn đối phương, dễ bị hao tâm tổn sức mà không nhận lại tương xứng.',t:'Xem lại mức độ đầu tư cảm xúc, tránh để bản thân tổn thương.'},
+      'Đại Hung':{m:'Không hợp nhau, cưỡng cầu sẽ gây tổn thương cho cả hai. Thời điểm này không thuận cho chuyện tình cảm.',t:'Hãy dừng lại và xem xét kỹ lưỡng, tránh quyết định vội vàng.'},
+    },
+    marriage:{
+      'Đại Cát':{m:'Hôn nhân thuận lợi, đối phương chủ động và gia đình nhà kia có điều kiện tốt. Hôn sự dễ thành, hứa hẹn cuộc sống sung túc.',t:'Đây là thời điểm tốt để tiến đến hôn nhân, hãy nắm lấy cơ hội.'},
+      'Cát':{m:'Hai gia đình tương đương, hôn sự ổn thỏa. Cuộc hôn nhân bền vững, cùng nhau xây dựng tổ ấm.',t:'Hãy bàn bạc cởi mở với gia đình hai bên.'},
+      'Bình':{m:'Hôn sự có thể thành nhưng cần nỗ lực và đàm phán. Có thể có chênh lệch về điều kiện giữa hai bên.',t:'Kiên nhẫn và linh hoạt trong đàm phán.'},
+      'Hung':{m:'Hôn sự khó thành, nhiều trở ngại. Bạn phải nhượng bộ nhiều, dễ bị hao tài.',t:'Cân nhắc kỹ lưỡng các điều kiện trước khi quyết định.'},
+      'Đại Hung':{m:'Hôn nhân không thuận, cưỡng cầu sẽ mang lại bất hạnh cho cả hai. Không nên tiến hành lúc này.',t:'Nên dừng lại và xem xét lại toàn bộ mối quan hệ.'},
+    },
+    career:{
+      'Đại Cát':{m:'Được quý nhân đề bạt, sự nghiệp thăng tiến suôn sẻ. Danh tiếng và cơ hội đến tự nhiên không cần quá nỗ lực.',t:'Đây là thời điểm tốt để đề xuất dự án lớn hoặc xin thăng chức.'},
+      'Cát':{m:'Đồng nghiệp hợp tác tốt, môi trường làm việc ổn định. Công việc tiến triển đều đặn, được tin tưởng.',t:'Duy trì mối quan hệ tốt với đồng nghiệp và cấp trên.'},
+      'Bình':{m:'Phải tự nỗ lực nhiều, thành công đến chậm. Nhưng tự lực cánh sinh thì vẫn đạt được.',t:'Kiên trì và chủ động, tránh ỷ lại vào người khác.'},
+      'Hung':{m:'Hao sức mà ít được ghi nhận, cống hiến không được đền đáp xứng đáng.',t:'Tạm thời thu mình, không nên khởi sự việc lớn lúc này.'},
+      'Đại Hung':{m:'Nguy cơ bị khiển trách, mất chức hoặc sự cố nghiêm trọng tại nơi làm việc. Đây là dấu hiệu hung hiểm nhất trong sự nghiệp.',t:'Cực kỳ thận trọng, tránh xung đột với cấp trên, hành động phòng thủ.'},
+    },
+    wealth:{
+      'Đại Cát':{m:'Tài lộc đến thuận lợi, tiền bạc đến không cần quá nỗ lực. Có thể có thu nhập bất ngờ hoặc đầu tư sinh lời tốt.',t:'Thời điểm tốt để đầu tư hoặc mở rộng kinh doanh.'},
+      'Cát':{m:'Tài chính ổn định, thu chi cân bằng. Không giàu đột ngột nhưng bền vững lâu dài.',t:'Quản lý chi tiêu tốt để duy trì sự ổn định.'},
+      'Bình':{m:'Cần nỗ lực mới kiếm được tiền — Thể khắc Dụng trong tài lộc có nghĩa bạn kiểm soát được dòng tiền.',t:'Chủ động trong công việc, kiên trì sẽ có thành quả.'},
+      'Hung':{m:'Hao tài, chi nhiều hơn thu. Dễ bị thất thoát tài chính hoặc đầu tư thua lỗ.',t:'Hạn chế chi tiêu lớn, tránh đầu tư rủi ro lúc này.'},
+      'Đại Hung':{m:'Nguy cơ thất thoát tài chính nghiêm trọng. Tuyệt đối không nên đầu tư lớn hay vay mượn.',t:'Bảo vệ tài sản hiện có, không tham gia giao dịch rủi ro.'},
+    },
+    health:{
+      'Đại Cát':{m:'Sức khỏe tốt, có bệnh nhẹ sẽ mau khỏi. Cơ thể đang được bồi bổ từ ngoại cảnh, phục hồi nhanh.',t:'Duy trì lối sống lành mạnh, tận dụng giai đoạn sức khỏe tốt này.'},
+      'Cát':{m:'Sức khỏe ổn định, không có bệnh lớn đáng lo ngại.',t:'Duy trì chế độ ăn uống và tập luyện đều đặn.'},
+      'Bình':{m:'Có thể có bệnh nhưng không nghiêm trọng, cần điều trị đúng cách. Tự thân khắc chế được bệnh tật.',t:'Thăm khám bác sĩ sớm, không để kéo dài.'},
+      'Hung':{m:'Bệnh kéo dài, khó chữa dứt điểm. Cơ thể đang tiêu hao năng lượng nhiều.',t:'Nghỉ ngơi đủ giấc, tránh làm việc quá sức, uống thuốc đúng liệu trình.'},
+      'Đại Hung':{m:'Bệnh nặng, thuốc có thể kém hiệu quả. Cần được chăm sóc y tế tích cực ngay.',t:'Thăm khám ngay, không tự chữa. Ưu tiên điều trị chuyên khoa.'},
+    },
+    friend:{
+      'Đại Cát':{m:'Bạn bè tốt bụng, sẵn lòng giúp đỡ và ủng hộ. Có quý nhân xuất hiện, quan hệ xã hội hanh thông.',t:'Đây là lúc tốt để mở rộng mạng lưới quan hệ.'},
+      'Cát':{m:'Bạn bè đáng tin cậy, tình bạn ổn định và chân thành. Có thể dựa vào nhau.',t:'Trân trọng những mối quan hệ hiện tại, vun đắp tình bạn lâu bền.'},
+      'Bình':{m:'Phải chủ động trong các mối quan hệ, đôi khi mệt mỏi nhưng vẫn có kết quả.',t:'Đừng ngại chủ động liên lạc và giúp đỡ người khác trước.'},
+      'Hung':{m:'Dễ bị lợi dụng, quan hệ không cân bằng — bạn cho nhiều hơn nhận.',t:'Đặt ranh giới rõ ràng, tránh bị cuốn vào việc của người khác.'},
+      'Đại Hung':{m:'Cảnh báo có kẻ xấu trong vòng kết giao, nguy cơ bị phản bội hoặc lừa đảo.',t:'Thận trọng với người mới quen, không chia sẻ thông tin quan trọng.'},
+    },
+    study:{
+      'Đại Cát':{m:'Học tập tiến bộ nhanh, có thầy giỏi hoặc tài liệu tốt hỗ trợ. Kết quả thi cử sẽ tốt.',t:'Nắm bắt cơ hội học hỏi từ người có kinh nghiệm hơn.'},
+      'Cát':{m:'Học tập ổn định, tiếp thu tốt. Kết quả không xuất sắc đột biến nhưng chắc chắn và bền vững.',t:'Duy trì thói quen học đều đặn.'},
+      'Bình':{m:'Học tập đòi hỏi nhiều nỗ lực hơn bình thường, tiến bộ chậm nhưng chắc.',t:'Lập kế hoạch học tập cụ thể, chia nhỏ mục tiêu.'},
+      'Hung':{m:'Khó tập trung, dễ bị phân tâm. Năng lượng học tập bị tiêu hao ra ngoài.',t:'Tạo môi trường học tập yên tĩnh, loại bỏ yếu tố gây xao nhãng.'},
+      'Đại Hung':{m:'Gặp nhiều trở ngại trong học tập, dễ nản lòng hoặc kết quả không như mong muốn.',t:'Xem lại phương pháp học, cân nhắc tìm gia sư hoặc đổi cách tiếp cận.'},
+    },
+    travel:{
+      'Đại Cát':{m:'Chuyến đi thuận buồm xuôi gió, gặp nhiều may mắn và cơ hội trên đường.',t:travelNote(hasTon,hasLy,hasKham,hasDoi,hasChan)},
+      'Cát':{m:'Chuyến đi bình an, không gặp sự cố đáng kể. Đạt được mục đích chuyến đi.',t:travelNote(hasTon,hasLy,hasKham,hasDoi,hasChan)},
+      'Bình':{m:'Chuyến đi có chút trắc trở nhỏ nhưng vẫn thành công. Bạn làm chủ được tình huống.',t:travelNote(hasTon,hasLy,hasKham,hasDoi,hasChan)},
+      'Hung':{m:'Chuyến đi tốn kém, hao tài hoặc mệt mỏi mà không đạt kết quả mong muốn.',t:'Cân nhắc hoãn chuyến đi hoặc rút ngắn hành trình.'},
+      'Đại Hung':{m:'Cảnh báo nguy hiểm trên đường — tai nạn, mất mát hoặc sự cố nghiêm trọng. Không nên xuất hành lúc này.',t:'Hoãn chuyến đi, đợi thời điểm tốt hơn.'},
+    },
+    business:{
+      'Đại Cát':{m:'Giao dịch thuận lợi, đối tác chủ động và hào phóng. Lợi nhuận đến dễ dàng.',t:'Thời điểm tốt để ký kết hợp đồng hoặc mở rộng hợp tác.'},
+      'Cát':{m:'Giao dịch ổn thỏa, đôi bên cùng có lợi. Hợp tác bền lâu.',t:'Duy trì uy tín và giữ đúng cam kết với đối tác.'},
+      'Bình':{m:'Giao dịch có thể xảy ra nhưng cần đàm phán và nỗ lực. Lợi nhuận đến sau công sức.',t:'Chuẩn bị kỹ điều khoản hợp đồng, không ký vội.'},
+      'Hung':{m:'Giao dịch thua lỗ hoặc bị đối tác lợi dụng. Hao tài tốn của.',t:'Tránh giao dịch lớn, kiểm tra kỹ đối tác trước khi hợp tác.'},
+      'Đại Hung':{m:'Giao dịch thất bại hoặc bị lừa đảo. Rủi ro rất cao.',t:'Không ký kết bất kỳ hợp đồng quan trọng nào lúc này.'},
+    },
+    daily:{
+      'Đại Cát':{m:'Ngày hôm nay mọi việc hanh thông, gặp quý nhân phù trợ. Thích hợp để khởi sự hoặc gặp gỡ quan trọng.',t:dailyNote(hasKham,hasDoi)},
+      'Cát':{m:'Ngày bình an, thuận lợi. Mọi việc diễn ra theo đúng kế hoạch.',t:dailyNote(hasKham,hasDoi)},
+      'Bình':{m:'Ngày có đôi chút trắc trở nhỏ nhưng vẫn vượt qua được. Cần chủ động xử lý.',t:'Kiên nhẫn và bình tĩnh trước các tình huống bất ngờ.'},
+      'Hung':{m:'Ngày không thuận, dễ hao tổn sức lực mà ít kết quả. Nên thận trọng trong mọi việc.',t:'Tránh quyết định lớn, giải quyết việc nhỏ trước.'},
+      'Đại Hung':{m:'Ngày nhiều trở ngại, dễ gặp sự cố. Nên hạn chế hoạt động quan trọng.',t:'Hôm nay nên dưỡng thần, tránh xa nơi đông người và quyết định lớn.'},
+    },
+  };
+  const t=M[topic]||M.daily;
+  return t[fl]||t['Bình'];
+}
+function travelNote(hasTon,hasLy,hasKham,hasDoi,hasChan){
+  if(hasTon) return 'Có Tốn (☴): rất thuận cho đi thuyền, đường hàng không.';
+  if(hasLy)  return 'Có Ly (☲): thuận lợi cho đi đường bộ, đường dài trên đất.';
+  if(hasKham)return 'Có Khảm (☵): cẩn thận mất mát, trộm cắp trên đường.';
+  if(hasDoi) return 'Có Đoài (☱): cảnh giác tranh cãi, khẩu thiệt với người cùng đi.';
+  if(hasChan)return 'Có Chấn (☳): hành trình nhiều chuyển động, vất vả nhưng sôi động.';
+  return 'Chuẩn bị kỹ hành lý và lịch trình để chuyến đi suôn sẻ.';
+}
+function dailyNote(k,d){
+  if(k&&d)return 'Quẻ có Khảm (☵) và Đoài (☱): buổi tụ họp sẽ có đầy đủ ăn uống vui vẻ.';
+  if(k)   return 'Quẻ có Khảm (☵): có rượu/đồ uống trong buổi tụ họp.';
+  if(d)   return 'Quẻ có Đoài (☱): có thức ăn trong buổi tụ họp.';
+  return 'Tận dụng năng lượng hôm nay để giải quyết công việc tồn đọng.';
+}
+
+// ═══════════════ RENDER ═══════════════
+function calcBienQue(upper,lower,movLine){
+  const lines=[...TR[lower].lines,...TR[upper].lines];
+  const nl=[...lines];nl[movLine-1]=nl[movLine-1]===1?0:1;
+  const nlb=nl.slice(0,3),nub=nl.slice(3,6);
+  function b2t(b){for(const[k,t]of Object.entries(TR))if(t.lines[0]===b[0]&&t.lines[1]===b[1]&&t.lines[2]===b[2])return+k;return 1;}
+  const nu=b2t(nub),nlo=b2t(nlb),bn=HT[nu][nlo];
+  return{upper:nu,lower:nlo,hexNum:bn,hex:HX[bn]};
+}
+function hexLines(upper,lower,mv){
+  const ls=[...TR[lower].lines,...TR[upper].lines];
+  return ls.map((v,i)=>({yang:v===1,mov:(i+1)===mv}));
+}
+function renderLines(lines){
+  let h='<div class="hex-lines">';
+  for(let i=0;i<6;i++){
+    const l=lines[i];
+    h+=`<div class="hl ${l.yang?'yang':'yin'}${l.mov?' mov':''}">`;
+    if(l.yang) h+='<div class="seg" style="width:100%"></div>';
+    else h+='<div class="seg" style="width:45%"></div><div class="seg" style="width:45%"></div>';
+    h+=`<span class="hl-n">${i+1}${l.mov?'●':''}</span></div>`;
+  }
+  return h+'</div>';
+}
+
+function renderResult({upper,lower,movLine,method,skipSave}){
+  const hNum=HT[upper][lower],hex=HX[hNum];
+  const lines=hexLines(upper,lower,movLine);
+  const inLow=movLine<=3;
+  const theT=inLow?TR[upper]:TR[lower];
+  const dunT=inLow?TR[lower]:TR[upper];
+  const f=getFortune(theT.el,dunT.el);
+  const topic=document.querySelector('.topic-btn.active')?.dataset.topic||'daily';
+  const ti=TOPICS[topic];
+  const q=document.getElementById('questionInput').value.trim();
+  const adv=getAdvice(topic,f.level,upper,lower,movLine);
+  const bien=calcBienQue(upper,lower,movLine);
+  const bienLines=hexLines(bien.upper,bien.lower,0);
+  if(!skipSave){
+    saveHistory({hexName:hex.name,hexZh:hex.zh,hexNum:hNum,upper,lower,movLine,
+      level:f.level,topic,question:q,
+      method:method.replace(/<br>/g,' · ').replace(/<[^>]*>/g,''),
+      methodDetail:method,bienName:bien.hex.name,bienZh:bien.hex.zh,bienNum:bien.hexNum});
+  }
+  const el=document.getElementById('result');
+  el.style.display='block';
+  if(typeof soundOn!=='undefined'&&soundOn)playGong();
+  setTimeout(()=>{
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+    if(typeof createBurst==='function')createBurst();
+    const prompt=buildPrompt(hex.name,hex.zh,hNum,movLine,upper,lower,theT,dunT,f,topic,q,adv,bien);
+    const ta=document.getElementById('aiPrompt');
+    if(ta)ta.value=prompt;
+  },80);
+  el.innerHTML=`
+<div class="rc">
+  <div class="rc-hdr">卦象 · Quẻ Gốc</div>
+  <div class="hex-display">
+    <span class="hex-zh">${hex.zh}</span>
+    <span class="hex-vi">${hex.name}</span>
+    <span class="hex-num">Quẻ số ${hNum} · Hào động ${movLine} (${inLow?'Hạ quái':'Thượng quái'})</span>
+    ${renderLines(lines)}
+  </div>
+  <div class="trig-row" style="margin-top:.6rem">
+    <div class="trig-card">
+      <span class="trig-sym">${TR[upper].sym}</span>
+      <span class="trig-name">${TR[upper].name} (${TR[upper].zh})</span>
+      <span class="trig-el">${TR[upper].el}</span>
+      <span class="trig-role">Thượng Quái</span>
+    </div>
+    <div class="trig-card">
+      <span class="trig-sym">${TR[lower].sym}</span>
+      <span class="trig-name">${TR[lower].name} (${TR[lower].zh})</span>
+      <span class="trig-el">${TR[lower].el}</span>
+      <span class="trig-role">Hạ Quái</span>
+    </div>
+  </div>
+  <div class="bien-arrow">⟱ Biến Thành ⟱</div>
+  <div class="hex-display bien-hex">
+    <span class="hex-zh">${bien.hex.zh}</span>
+    <span class="hex-vi">${bien.hex.name}</span>
+    <span class="hex-num">Quẻ biến số ${bien.hexNum}</span>
+    ${renderLines(bienLines)}
+  </div>
+  <div class="bien-grid">
+    <div class="trig-card">
+      <span class="trig-sym">${TR[bien.upper].sym}</span>
+      <span class="trig-name">${TR[bien.upper].name}</span>
+      <span class="trig-el">${TR[bien.upper].el}</span>
+      <span class="trig-role">Thượng Quái (Biến)</span>
+    </div>
+    <div class="trig-card">
+      <span class="trig-sym">${TR[bien.lower].sym}</span>
+      <span class="trig-name">${TR[bien.lower].name}</span>
+      <span class="trig-el">${TR[bien.lower].el}</span>
+      <span class="trig-role">Hạ Quái (Biến)</span>
+    </div>
+  </div>
+</div>
+
+<div class="dc">
+  <div class="rc-hdr">Tác Dụng Trong Câu Hỏi</div>
+  <div class="dc-badge">${ti.icon} ${ti.label}</div>
+  ${q?`<div class="q-echo">❝ ${q} ❞</div>`:``}
+  <div class="fortune-banner ${f.cls}" style="margin-bottom:.8rem">
+    <span class="fzh">${f.zh}</span>
+    <span class="fvi">${f.icon} ${f.level}</span>
+    <span class="freason">${f.reason}</span>
+  </div>
+  <div class="adv-main">${adv.m}</div>
+  ${adv.t?`<div class="adv-tip">💡 ${adv.t}</div>`:``}
+</div>
+
+<div class="rc">
+  <div class="rc-hdr">Giải Quẻ</div>
+  <div class="hex-meaning" style="margin-bottom:.5rem"><strong style="color:var(--gold)">${hex.name}:</strong> ${hex.m}</div>
+  <div class="hex-meaning" style="margin-bottom:.9rem"><strong style="color:var(--paper-d)">→ Biến thành ${bien.hex.name}:</strong> ${bien.hex.m}</div>
+  ${YC[hNum]?`<div class="divider"></div>
+  <div style="margin-top:.7rem">
+    <div style="font-size:.7rem;color:var(--gold);font-family:'Cinzel Decorative',cursive;letter-spacing:.1em;margin-bottom:.4rem">易 經 原 文</div>
+    <div style="font-size:.78rem;color:var(--paper-d);line-height:1.6;margin-bottom:.5rem;padding:.5rem .7rem;border-left:2px solid var(--gold-bd);background:rgba(201,162,39,.04);border-radius:0 6px 6px 0">
+      <strong style="color:var(--gold)">${hex.zh} · 卦辭：</strong>${YC[hNum].g}
+    </div>
+    <div style="font-size:.72rem;color:var(--paper-d);line-height:1.6;margin-bottom:.5rem;padding:.5rem .7rem;border:1px solid rgba(74,53,32,.3);border-radius:8px;background:rgba(4,2,12,.4)">
+      <strong style="color:var(--gold)">象曰：</strong>${YC[hNum].x}
+    </div>
+    <div style="font-size:.7rem;color:var(--gold);font-family:'Cinzel Decorative',cursive;letter-spacing:.1em;margin:.5rem 0 .3rem">爻 辭 · H À O ${movLine}</div>
+    <div style="font-size:.78rem;color:#ffe57a;line-height:1.6;padding:.5rem .7rem;border-left:2px solid #c9a227;background:rgba(201,162,39,.08);border-radius:0 6px 6px 0;margin-bottom:.4rem">
+      ${YC[hNum].y[movLine-1]||''}
+    </div>
+    <details style="margin-top:.3rem">
+      <summary style="font-size:.68rem;color:var(--paper-m);cursor:pointer;padding:.2rem 0">📜 Xem tất cả 6 hào từ</summary>
+      <div style="font-size:.72rem;color:var(--paper-d);line-height:1.7;padding:.4rem .5rem;margin-top:.3rem">
+        ${YC[hNum].y.map((y,i)=>`<div style="padding:.15rem 0;${i+1===movLine?'color:#ffe57a;font-weight:bold':'opacity:.8'}">${y}</div>`).join('')}
+      </div>
+    </details>
+  </div>`:''}
+
+  <div class="divider"></div>
+  <table class="tbl" style="margin-top:.7rem">
+    <tr><td class="lb">Thể quái (bản thân)</td><td class="vl">${theT.sym} ${theT.name} · ${theT.el}</td></tr>
+    <tr><td class="lb">Dụng quái (sự việc)</td><td class="vl">${dunT.sym} ${dunT.name} · ${dunT.el}</td></tr>
+    <tr><td class="lb">Phán quyết</td><td class="vl">${f.level} — ${f.reason}</td></tr>
+  </table>
+  <div class="wuxing" style="margin-top:.7rem">
+    Sinh: Kim→Thủy→Mộc→Hỏa→Thổ→Kim &nbsp;·&nbsp; Khắc: Kim→Mộc→Thổ→Thủy→Hỏa→Kim
+  </div>
+  <div class="divider"></div>
+  <div style="font-size:.75rem;color:var(--paper-m);line-height:1.7;margin-top:.5rem">${method}</div>
+</div>
+
+<div class="ai-box">
+  <div class="rc-hdr">Hỏi AI Giải Quẻ Chi Tiết</div>
+  <textarea class="ai-prompt-ta" id="aiPrompt" rows="9" readonly></textarea>
+  <div class="ai-btns">
+    <button class="ai-btn ai-btn-copy" id="btnCopy" onclick="copyPrompt()">📋 Sao chép</button>
+    <button class="ai-btn ai-btn-claude" onclick="openAI('claude')">✦ Claude</button>
+    <button class="ai-btn ai-btn-gpt" onclick="openAI('gpt')">⬡ ChatGPT</button>
+    <button class="ai-btn ai-btn-gem" onclick="openAI('gem')">◆ Gemini</button>
+  </div>
+  <div class="ai-copy-note">Sao chép prompt → mở web AI → dán vào ô chat và gửi</div>
+</div>`;
+}
+
+// ═══════════════ MAI HOA ═══════════════
+function mod8(n){const r=n%8;return r===0?8:r}
+function mod6(n){const r=n%6;return r===0?6:r}
+function gioH(h){if(h===23||h===0)return 1;return Math.floor(h/2)+1}
+
+function initMaiHoa(){
+  const n=new Date(),y=n.getFullYear()%100,m=n.getMonth()+1,d=n.getDate(),g=gioH(n.getHours());
+  ['inYear','inMonth','inDay','inHour'].forEach((id,i)=>{
+    document.getElementById(id).placeholder=[y,m,d,g][i];
+  });
+  document.getElementById('timeInfo').innerHTML=
+    `<strong>Hiện tại:</strong> ${d}/${m}/20${String(y).padStart(2,'0')} · Giờ ${GIO[g]} (số ${g})<br>
+     <span style="font-size:.76rem;color:var(--paper-m)">Bỏ trống để dùng thời gian tự động</span>`;
+}
+function castMaiHoa(){
+  const n=new Date();
+  const Y=+document.getElementById('inYear').value||n.getFullYear()%100;
+  const M=+document.getElementById('inMonth').value||n.getMonth()+1;
+  const D=+document.getElementById('inDay').value||n.getDate();
+  const H=+document.getElementById('inHour').value||gioH(n.getHours());
+  const niem=+document.getElementById('inNiem').value||0;
+  const min=n.getMinutes(), sec=n.getSeconds();
+  const sBase=Y+M+D;
+  const sTime=sBase+min+sec+niem;
+  const upper=mod8(sBase+sec+niem), lower=mod8(sTime+H), mv=mod6(sTime+H);
+  if(typeof soundOn!=='undefined'&&soundOn)playGong();
+  const niemNote=niem?` · Số khởi niệm: ${niem}`:'';
+  renderResult({upper,lower,movLine:mv,
+    method:`Mai Hoa Dịch Số (Thiệu Khang Tiết)<br>
+      Năm: ${Y} · Tháng: ${M} · Ngày: ${D} · Giờ: ${H} (${GIO[H]}) · ${min}p${String(sec).padStart(2,'0')}s${niemNote}<br>
+      Tổng thời gian: ${sBase} + phút(${min}) + giây(${sec})${niem?' + niệm('+niem+')':''} = ${sTime}<br>
+      Thượng quái: ${upper} · Hạ quái: ${lower} · Hào động: ${mv}`});
+  createBurst();
+}
+
+// ═══════════════ COIN ═══════════════
+let coinLines=[];
+function lv(s){return{9:{yang:true,mov:true,label:'Dương Động (9)'},7:{yang:true,mov:false,label:'Dương (7)'},
+  8:{yang:false,mov:false,label:'Âm (8)'},6:{yang:false,mov:true,label:'Âm Động (6)'}}[s]||{yang:true,mov:false,label:'Dương (7)'};}
+
+function tossCoin(){
+  if(coinLines.length>=6)return;
+  const coins=[rnd(),rnd(),rnd()];
+  const sum=coins.reduce((a,b)=>a+b,0);
+  if(typeof soundOn!=='undefined'&&soundOn)playClink();
+  if(navigator.vibrate)navigator.vibrate(30);
+  [0,1,2].forEach(i=>{
+    const d=document.getElementById('c'+i);
+    d.classList.remove('flip');void d.offsetWidth;d.classList.add('flip');
+  });
+  setTimeout(()=>{
+    [0,1,2].forEach(i=>{document.getElementById('c'+i).textContent=coins[i]===3?'☀':'☾';});
+    document.getElementById('coinSum').textContent=`${coins.join(' + ')} = ${sum}`;
+    const line={...lv(sum),coins,sum};
+    coinLines.push(line);updateCoinUI();
+    if(coinLines.length===6){
+      const lb=coinLines.slice(0,3).map(l=>l.yang?1:0);
+      const ub=coinLines.slice(3,6).map(l=>l.yang?1:0);
+      function b2t(b){for(const[k,t]of Object.entries(TR))
+        if(t.lines[0]===b[0]&&t.lines[1]===b[1]&&t.lines[2]===b[2])return+k;return 1;}
+      const lower=b2t(lb),upper=b2t(ub);
+      const mi=coinLines.findIndex(l=>l.mov);
+      document.getElementById('btnToss').disabled=true;
+      if(typeof soundOn!=='undefined'&&soundOn)playGong();
+      setTimeout(()=>{
+        renderResult({upper,lower,movLine:mi>=0?mi+1:1,
+          method:'Tung đồng xu · Crypto Random<br>'+coinLines.map((l,i)=>
+            `Hào ${i+1}: ${l.coins.map(c=>c===3?'☀':'☾').join('')} = ${l.sum} → ${l.label}`).join('<br>')});
+        createBurst();
+      },400);
+    }
+  },780);
+}
+function rnd(){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%2===0?3:2}
+function updateCoinUI(){
+  const n=coinLines.length;
+  document.getElementById('tossCount').textContent=Math.min(n+1,6);
+  if(n>=6)document.getElementById('btnToss').disabled=true;
+  let h='';
+  for(let i=n-1;i>=0;i--){
+    const l=coinLines[i];
+    h+=`<div class="prog-row${l.mov?' mov':''}">
+      <span class="pnum">Hào ${i+1}</span>
+      <span class="psym">${l.yang?'━━━━━':'━━ ━━'}</span>
+      <span class="pname">${l.yang?'Dương':'Âm'} (${l.sum})</span>
+      ${l.mov?'<span class="pmov">Động</span>':''}
+    </div>`;
+  }
+  document.getElementById('linesProgress').innerHTML=h;
+}
+function resetCoin(){
+  coinLines=[];
+  document.getElementById('btnToss').disabled=false;
+  document.getElementById('tossCount').textContent='1';
+  document.getElementById('coinSum').textContent='―';
+  document.getElementById('linesProgress').innerHTML='';
+  document.getElementById('result').style.display='none';
+  [0,1,2].forEach(i=>document.getElementById('c'+i).textContent='☀');
+}
+
+// ═══════════════ YARROW STALK ═══════════════
+let yarrowLines=[];
+function yarrowLine(){
+  const a=new Uint32Array(1);crypto.getRandomValues(a);
+  const r=a[0]%16;
+  if(r<1)return 6;if(r<6)return 7;if(r<13)return 8;return 9;
+}
+function castYarrowLine(){
+  if(yarrowLines.length>=6)return;
+  const val=yarrowLine(),line={...lv(val),sum:val};
+  const anim=document.getElementById('stalkAnim');
+  if(anim){anim.classList.remove('shake');void anim.offsetWidth;anim.classList.add('shake');}
+  if(typeof soundOn!=='undefined'&&soundOn)playClink();
+  if(navigator.vibrate)navigator.vibrate(30);
+  setTimeout(()=>{
+    yarrowLines.push(line);
+    updateYarrowUI();
+    if(yarrowLines.length===6){
+      const lb=yarrowLines.slice(0,3).map(l=>l.yang?1:0);
+      const ub=yarrowLines.slice(3,6).map(l=>l.yang?1:0);
+      function b2t(b){for(const[k,t]of Object.entries(TR))if(t.lines[0]===b[0]&&t.lines[1]===b[1]&&t.lines[2]===b[2])return+k;return 1;}
+      const lower=b2t(lb),upper=b2t(ub);
+      const mi=yarrowLines.findIndex(l=>l.mov);
+      document.getElementById('btnYarrow').disabled=true;
+      if(typeof soundOn!=='undefined'&&soundOn)playGong();
+      setTimeout(()=>{
+        renderResult({upper,lower,movLine:mi>=0?mi+1:1,
+          method:'Cỏ Thi (Yarrow Stalk) · Xác suất cổ điển<br>'+yarrowLines.map((l,i)=>
+            `Hào ${i+1}: ${l.sum} → ${l.label}`).join('<br>')});
+        createBurst();
+      },400);
+    }
+  },600);
+}
+function updateYarrowUI(){
+  const n=yarrowLines.length;
+  document.getElementById('yarrowHaoCount').textContent=Math.min(n+1,6);
+  document.getElementById('yarrowCount').textContent=49-n*8;
+  if(n>=6)document.getElementById('btnYarrow').disabled=true;
+  let h='';
+  for(let i=n-1;i>=0;i--){
+    const l=yarrowLines[i];
+    h+=`<div class="prog-row${l.mov?' mov':''}"><span class="pnum">Hào ${i+1}</span><span class="psym">${l.yang?'━━━━━':'━━ ━━'}</span><span class="pname">${l.yang?'Dương':'Âm'} (${l.sum})</span>${l.mov?'<span class="pmov">Động</span>':''}</div>`;
+  }
+  document.getElementById('yarrowProgress').innerHTML=h;
+}
+function resetYarrow(){
+  yarrowLines=[];document.getElementById('btnYarrow').disabled=false;
+  document.getElementById('yarrowHaoCount').textContent='1';
+  document.getElementById('yarrowCount').textContent='49';
+  document.getElementById('yarrowProgress').innerHTML='';
+  document.getElementById('result').style.display='none';
+  const a=document.getElementById('stalkAnim');if(a)a.classList.remove('shake');
+}
+
+// ═══════════════ SOUND ═══════════════
+let soundOn=false,audioCtx;
+function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function toggleSound(){
+  soundOn=!soundOn;const btn=document.getElementById('soundBtn');
+  btn.textContent=soundOn?'🔊':'🔇';btn.classList.toggle('on',soundOn);
+  if(soundOn){getAudioCtx();playClink();}
+}
+function playClink(){
+  try{const c=getAudioCtx(),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);
+  o.frequency.setValueAtTime(2200,c.currentTime);
+  o.frequency.exponentialRampToValueAtTime(800,c.currentTime+.15);
+  g.gain.setValueAtTime(.1,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3);
+  o.start(c.currentTime);o.stop(c.currentTime+.3);}catch(e){}
+}
+function playGong(){
+  try{const c=getAudioCtx(),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);o.type='sine';
+  o.frequency.setValueAtTime(180,c.currentTime);
+  o.frequency.exponentialRampToValueAtTime(120,c.currentTime+1.5);
+  g.gain.setValueAtTime(.18,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+2);
+  o.start(c.currentTime);o.stop(c.currentTime+2);
+  const o2=c.createOscillator(),g2=c.createGain();
+  o2.connect(g2);g2.connect(c.destination);o2.type='sine';
+  o2.frequency.setValueAtTime(540,c.currentTime);
+  o2.frequency.exponentialRampToValueAtTime(300,c.currentTime+1);
+  g2.gain.setValueAtTime(.06,c.currentTime);
+  g2.gain.exponentialRampToValueAtTime(.001,c.currentTime+1.2);
+  o2.start(c.currentTime);o2.stop(c.currentTime+1.2);}catch(e){}
+}
+
+// ═══════════════ HISTORY ═══════════════
+const HIST_KEY='gieo_que_history',MAX_HIST=20;
+function saveHistory(data){
+  try{const h=JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+  h.unshift({ts:Date.now(),...data});
+  if(h.length>MAX_HIST)h.length=MAX_HIST;
+  localStorage.setItem(HIST_KEY,JSON.stringify(h));updateHistBadge();}catch(e){}
+}
+function loadHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+function clearHistory(){localStorage.removeItem(HIST_KEY);renderHistoryPanel();updateHistBadge();}
+function updateHistBadge(){
+  const b=document.getElementById('histBadge');if(!b)return;
+  const c=loadHistory().length;b.textContent=c;b.style.display=c>0?'flex':'none';
+}
+function toggleHistory(){
+  const p=document.getElementById('histPanel'),o=document.getElementById('histOverlay');
+  if(p.classList.contains('open')){p.classList.remove('open');o.classList.remove('open');}
+  else{renderHistoryPanel();p.classList.add('open');o.classList.add('open');}
+}
+function renderHistoryPanel(){
+  const hist=loadHistory(),el=document.getElementById('histList');
+  if(!hist.length){el.innerHTML='<div class="hist-empty">📜 Chưa có quẻ nào được lưu</div>';return;}
+  const LC={'Đại Cát':'border-color:#c9a227;color:#ffe57a;background:rgba(80,50,0,.28)','Cát':'border-color:#27ae60;color:#a8f0c6;background:rgba(0,60,20,.22)','Bình':'border-color:#636e72;color:#dfe6e9;background:rgba(30,30,45,.3)','Hung':'border-color:#922b21;color:#f5b7b1;background:rgba(70,5,5,.3)','Đại Hung':'border-color:#5b1a14;color:#f1948a;background:rgba(45,3,3,.4)'};
+  let h='';hist.forEach((e,i)=>{
+    const d=new Date(e.ts),ds=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    h+=`<div class="hist-entry" onclick="replayHistory(${i})"><div class="hist-date">${ds} · ${e.method}</div><div class="hist-info"><span class="hist-zh">${e.hexZh}</span><div><span class="hist-name">${e.hexName} — Quẻ ${e.hexNum}</span><br><span class="hist-level" style="${LC[e.level]||''}">${e.level}</span></div></div>${e.question?`<div style="font-size:.7rem;color:var(--paper-m);margin-top:.3rem;font-style:italic">❝ ${e.question} ❞</div>`:``}</div>`;
+  });
+  h+='<button class="hist-clear" onclick="if(confirm(\'Xóa toàn bộ lịch sử?\'))clearHistory()">🗑️ Xóa lịch sử</button>';
+  el.innerHTML=h;
+}
+function replayHistory(idx){
+  const hist=loadHistory(),e=hist[idx];if(!e)return;
+  toggleHistory();
+  document.querySelectorAll('.topic-btn').forEach(b=>b.classList.toggle('active',b.dataset.topic===e.topic));
+  document.getElementById('questionInput').value=e.question||'';
+  renderResult({upper:e.upper,lower:e.lower,movLine:e.movLine,method:e.methodDetail||e.method,skipSave:true});
+}
+
+function createBurst(){
+  const el=document.getElementById('burstContainer');if(!el)return;
+  const cx=window.innerWidth/2,cy=window.innerHeight/3;let h='';
+  for(let i=0;i<30;i++){const angle=Math.random()*Math.PI*2,dist=60+Math.random()*160;
+    const bx=Math.cos(angle)*dist,by=Math.sin(angle)*dist,size=2+Math.random()*4,hue=35+Math.random()*20;
+    h+=`<div class="burst-particle" style="left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;--bx:${bx}px;--by:${by}px;background:hsl(${hue},80%,55%);animation-delay:${(Math.random()*.2).toFixed(2)}s"></div>`;
+  }el.innerHTML=h;setTimeout(()=>el.innerHTML='',1500);
+}
+
+// ═══════════════ UI ═══════════════
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sec-'+tab).classList.add('active');
+  document.getElementById('result').style.display='none';
+}
+function selectTopic(btn){
+  document.querySelectorAll('.topic-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const ph={daily:'VD: Hôm nay tôi nên làm gì?',love:'VD: Người ấy có cảm tình với tôi không?',
+    marriage:'VD: Hôn nhân của tôi có thuận lợi không?',career:'VD: Tôi có được thăng chức không?',
+    wealth:'VD: Tháng này tài chính của tôi thế nào?',health:'VD: Bệnh của tôi có mau khỏi không?',
+    friend:'VD: Người bạn này có đáng tin không?',study:'VD: Kỳ thi này tôi có đậu không?',
+    travel:'VD: Chuyến đi cuối tuần có thuận không?',business:'VD: Hợp đồng này có ký được không?'};
+  document.getElementById('questionInput').placeholder=ph[btn.dataset.topic]||'Nhập câu hỏi cụ thể...';
+}
+
+// ═══════════════ CANVAS PARTICLES ═══════════════
+(function(){
+  const cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+  let pts=[];
+  function resize(){cv.width=innerWidth;cv.height=innerHeight}
+  function Pt(){
+    this.x=Math.random()*cv.width;this.y=Math.random()*cv.height;
+    this.r=Math.random()*.9+.15;this.ph=Math.random()*Math.PI*2;
+    this.sp=Math.random()*.4+.15;this.a=Math.random()*.35+.08;
+  }
+  function init(){resize();pts=Array.from({length:160},()=>new Pt())}
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);t+=.018;
+    pts.forEach(p=>{
+      const a=p.a*(0.4+0.6*Math.sin(t*p.sp+p.ph));
+      ctx.fillStyle=`rgba(201,162,39,${a})`;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize',init);init();draw();
+})();
+
+// ═══════════════ AI PROMPT ═══════════════
+function buildPrompt(hexName,hexZh,hNum,movLine,upper,lower,theT,dunT,f,topic,q,adv,bien){
+  const ti=TOPICS[topic];
+  const lines=[...TR[lower].lines,...TR[upper].lines];
+  const lineStr=lines.map((v,i)=>{
+    const mov=(i+1)===movLine;
+    return `Hào ${i+1}: ${v===1?'━━━━━ (Dương)':'━━ ━━ (Âm)'}${mov?' ← Hào Động':''}`;
+  }).join('\n');
+  const questionPart=q?`Câu hỏi cụ thể: "${q}"\n`:'';
+  const bienPart=bien?`\nQuẻ biến: ${bien.hex.name} (${bien.hex.zh}) — Quẻ số ${bien.hexNum}\nThượng quái biến: ${TR[bien.upper].sym} ${TR[bien.upper].name} (${TR[bien.upper].el})\nHạ quái biến: ${TR[bien.lower].sym} ${TR[bien.lower].name} (${TR[bien.lower].el})\nÝ nghĩa quẻ biến: ${bien.hex.m}`:'';
+  return `Bạn là chuyên gia Kinh Dịch. Hãy giải quẻ chi tiết theo thứ tự sau:
+
+1. QUẺ NÀO
+Tên quẻ: ${hexName} (${hexZh}) — Quẻ số ${hNum}
+Thượng quái: ${TR[upper].sym} ${TR[upper].name} (${TR[upper].el})
+Hạ quái: ${TR[lower].sym} ${TR[lower].name} (${TR[lower].el})
+Hào động: Hào ${movLine}
+Cấu trúc hào:
+${lineStr}${bienPart}
+
+2. TÁC DỤNG TRONG CÂU HỎI
+Chủ đề: ${ti.icon} ${ti.label}
+${questionPart}Phán đoán sơ bộ: ${f.level} — ${f.reason}
+Thể quái (đại diện bản thân): ${theT.sym} ${theT.name} · ${theT.el}
+Dụng quái (đại diện sự việc): ${dunT.sym} ${dunT.name} · ${dunT.el}
+
+3. GIẢI QUẺ
+Hãy phân tích chi tiết: ý nghĩa quẻ ${hexName} trong hoàn cảnh câu hỏi, quẻ biến ${bien?bien.hex.name:''} cho thấy xu hướng gì, tính chất hào động số ${movLine} ảnh hưởng thế nào, lời khuyên cụ thể và rõ ràng. Trả lời bằng tiếng Việt, súc tích, đúng trọng tâm, không lan man.`;
+}
+
+function copyPrompt(){
+  const ta=document.getElementById('aiPrompt');
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const btn=document.getElementById('btnCopy');
+    btn.textContent='✓ Đã sao chép';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Sao chép';btn.classList.remove('copied');},2200);
+  });
+}
+function openAI(who){
+  copyPrompt();
+  const urls={claude:'https://claude.ai',gpt:'https://chatgpt.com',gem:'https://gemini.google.com'};
+  window.open(urls[who],'_blank');
+}
+
+// ═══════════════ LEARN MODULE ═══════════════
+const TRL={
+  1:{nature:'Trời · Kiên định bất biến',dir:'Tây Bắc',body:'Đầu',family:'Cha',img:'Ngựa · Ngọc · Vàng'},
+  2:{nature:'Đầm · Vui vẻ · Khẩu thiệt',dir:'Tây',body:'Miệng',family:'Thiếu nữ',img:'Dê · Vũng nước'},
+  3:{nature:'Lửa · Sáng sủa · Bám víu',dir:'Nam',body:'Mắt',family:'Trung nữ',img:'Trĩ · Rùa · Cua'},
+  4:{nature:'Sấm · Chuyển động · Thức tỉnh',dir:'Đông',body:'Chân',family:'Trưởng nam',img:'Rồng · Chim ưng'},
+  5:{nature:'Gió · Thấm sâu · Nhún nhường',dir:'Đông Nam',body:'Đùi',family:'Trưởng nữ',img:'Gà · Sâu bướm'},
+  6:{nature:'Nước · Nguy hiểm · Chảy mãi',dir:'Bắc',body:'Tai',family:'Trung nam',img:'Heo · Cá · Trăng'},
+  7:{nature:'Núi · Dừng lại · Tĩnh tâm',dir:'Đông Bắc',body:'Tay',family:'Thiếu nam',img:'Chó · Đá · Chuột'},
+  8:{nature:'Đất · Nuôi dưỡng · Thuận theo',dir:'Tây Nam',body:'Bụng',family:'Mẹ',img:'Bò · Vải · Đất sét'},
+};
+const EL_CLR={Kim:'#c9a227',Thủy:'#4a8fff',Mộc:'#27ae60',Hỏa:'#e74c3c',Thổ:'#e67e22'};
+
+const HEX_TRIG=(function(){
+  const m={};
+  for(let u=1;u<=8;u++) for(let l=1;l<=8;l++) if(HT[u][l]) m[HT[u][l]]={upper:u,lower:l};
+  return m;
+})();
+
+function initLearn(){
+  let h='';
+  for(let k=1;k<=8;k++){
+    const t=TR[k],tl=TRL[k],c=EL_CLR[t.el];
+    h+=`<div class="tlc">
+      <span class="tlsym">${t.sym}</span>
+      <span class="tlname">${t.name}</span>
+      <span class="tlzh">${t.zh}</span>
+      <span class="tlel" style="border-color:${c}50;color:${c}">${t.el}</span>
+      <div class="tldesc">
+        <b>Tính chất:</b> ${tl.nature}<br>
+        <b>Phương:</b> ${tl.dir} &nbsp;·&nbsp; <b>Thân:</b> ${tl.body}<br>
+        <b>Gia đình:</b> ${tl.family}<br>
+        <b>Hình tượng:</b> ${tl.img}
+      </div>
+    </div>`;
+  }
+  document.getElementById('batqua-grid').innerHTML=h;
+
+  let g='';
+  for(let n=1;n<=64;n++){
+    const hx=HX[n];if(!hx)continue;
+    const short=hx.m.split('—')[0].replace(/,/g,'').trim();
+    g+=`<div class="hx64" onclick="showHex64(${n})" data-name="${hx.name.toLowerCase()}">
+      <span class="h64n">${n}</span>
+      <span class="h64zh">${hx.zh}</span>
+      <div class="h64info">
+        <span class="h64name">${hx.name}</span>
+        <span class="h64m">${short}</span>
+      </div>
+    </div>`;
+  }
+  document.getElementById('hex64-grid').innerHTML=g;
+}
+
+function switchLearn(id,btn){
+  document.querySelectorAll('.lnav').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.lsec').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('learn-'+id).classList.add('active');
+}
+
+function toggleMethod(el){
+  const card=el.closest('.method-card');
+  const body=card.querySelector('.method-body');
+  const open=card.classList.contains('open');
+  document.querySelectorAll('.method-card').forEach(c=>{c.classList.remove('open');c.querySelector('.method-body').classList.remove('open');});
+  if(!open){card.classList.add('open');body.classList.add('open');}
+}
+
+function filterHex64(q){
+  const v=q.toLowerCase().trim();
+  document.querySelectorAll('.hx64').forEach(el=>{
+    el.classList.toggle('hidden',!!v&&!el.dataset.name.includes(v)&&!el.querySelector('.h64zh').textContent.includes(q));
+  });
+}
+
+function showHex64(n){
+  const hx=HX[n],tr=HEX_TRIG[n];
+  if(!hx||!tr)return;
+  const lines=hexLines(tr.upper,tr.lower,0);
+  document.getElementById('hex64-modal-content').innerHTML=`
+    <button class="hm-close-btn" onclick="closeHex64Modal()">✕ Đóng</button>
+    <div class="rc-hdr" style="margin-bottom:.9rem">卦 · Quẻ số ${n}</div>
+    <div class="hex-display" style="margin-bottom:.9rem">
+      <span class="hex-zh">${hx.zh}</span>
+      <span class="hex-vi">${hx.name}</span>
+      <div style="display:flex;justify-content:center">${renderLines(lines)}</div>
+    </div>
+    <div class="trig-row">
+      <div class="trig-card"><span class="trig-sym">${TR[tr.upper].sym}</span><span class="trig-name">${TR[tr.upper].name}</span><span class="trig-el">${TR[tr.upper].el}</span><span class="trig-role">Thượng Quái</span></div>
+      <div class="trig-card"><span class="trig-sym">${TR[tr.lower].sym}</span><span class="trig-name">${TR[tr.lower].name}</span><span class="trig-el">${TR[tr.lower].el}</span><span class="trig-role">Hạ Quái</span></div>
+    </div>
+    <div class="divider" style="margin:.9rem 0"></div>
+    <div class="hex-meaning">${hx.m}</div>`;
+  document.getElementById('hex64-modal').classList.add('open');
+}
+
+function closeHex64Modal(){
+  document.getElementById('hex64-modal').classList.remove('open');
+}
+
+function goTo(tab){
+  const tabs=document.querySelectorAll('.tab');
+  const idx=tab==='maihoa'?0:tab==='coin'?1:tab==='yarrow'?2:3;
+  switchTab(tab,tabs[idx]);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+initMaiHoa();
+initLearn();
+updateHistBadge();
+</script>
+</body>
+</html>
