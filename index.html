@@ -480,6 +480,23 @@ header{text-align:center;padding:2.8rem 1rem 1.8rem}
         <input type="number" id="inNiem" min="1" max="9999" placeholder="VD: 37, 168, 888..." style="flex:1;padding:.5rem .7rem;border-radius:8px;border:1px solid var(--gold-bd);background:rgba(4,2,12,.6);color:var(--paper-d);font-family:'Noto Serif',serif;font-size:.85rem;text-align:center">
         <button onclick="document.getElementById('inNiem').value=Math.floor(crypto.getRandomValues(new Uint32Array(1))[0]%9999)+1;this.style.transform='rotate(360deg)';setTimeout(()=>this.style.transform='',400)" style="padding:.4rem .7rem;border-radius:8px;border:1px solid var(--gold-bd);background:linear-gradient(135deg,rgba(201,162,39,.15),rgba(4,2,12,.6));color:var(--gold);font-size:1.2rem;cursor:pointer;transition:transform .4s ease" title="Random số">🎲</button>
       </div>
+      <details style="margin-top:.5rem">
+        <summary style="font-size:.7rem;color:var(--gold);cursor:pointer;padding:.2rem 0;user-select:none">❓ Tại sao cần nhập Số Khởi Niệm?</summary>
+        <div style="font-size:.72rem;color:var(--paper-d);line-height:1.65;padding:.6rem .7rem;margin-top:.3rem;border:1px solid rgba(201,162,39,.15);border-radius:8px;background:rgba(201,162,39,.04)">
+          <p style="margin:0 0 .4rem"><strong style="color:var(--gold)">🔮 Nguyên lý "Nhất Niệm Động"</strong></p>
+          <p style="margin:0 0 .4rem">Theo Thiệu Khang Tiết — cha đẻ Mai Hoa Dịch Số — <em>khoảnh khắc bạn khởi ý hỏi đã chứa đựng câu trả lời</em>. Số khởi niệm chính là "dấu ấn tâm thức" riêng của bạn tại thời điểm đó.</p>
+          <p style="margin:0 0 .4rem"><strong style="color:var(--gold)">🧘 Tại sao mỗi người cần số khác nhau?</strong></p>
+          <p style="margin:0 0 .4rem">Nếu chỉ dùng thời gian, hai người hỏi cùng lúc sẽ ra cùng kết quả — nhưng mệnh mỗi người khác nhau. Số khởi niệm giúp <strong>cá nhân hóa</strong> quẻ theo đúng "khí" riêng của bạn.</p>
+          <p style="margin:0 0 .4rem"><strong style="color:var(--gold)">📝 Cách chọn số đúng nhất:</strong></p>
+          <ul style="margin:0;padding-left:1.2rem">
+            <li>Tập trung vào câu hỏi của bạn</li>
+            <li>Nghĩ một con số <strong>đầu tiên</strong> hiện lên trong đầu — <em>đừng suy nghĩ quá lâu</em></li>
+            <li>Hoặc dùng số có ý nghĩa riêng: tuổi, ngày sinh, số nhà, biển xe...</li>
+            <li>Hoặc bấm 🎲 để hệ thống chọn ngẫu nhiên cho bạn</li>
+          </ul>
+          <p style="margin:.4rem 0 0;opacity:.7;font-style:italic">💡 Bỏ trống cũng được — hệ thống sẽ dùng giây hiện tại làm yếu tố ngẫu nhiên.</p>
+        </div>
+      </details>
     </div>
     <button class="btn-cast" onclick="castMaiHoa()">✦ AN QUẺ ✦</button>
   </div>
