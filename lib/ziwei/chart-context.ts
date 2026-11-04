@@ -8,10 +8,11 @@
  * 输入必须是 sanitizeChart() 的产物。
  */
 import 'server-only';
-import type { Palace, Star, ZiweiChart } from './types';
+import type { Palace, SiHua, Star, ZiweiChart } from './types';
 import { BRANCHES, SHICHEN, STEMS, STAR_DESCRIPTIONS } from './constants';
 import { detectPatterns, getMingGongSummary } from './patterns';
-import { getSiHuaByStem } from './sihua';
+import { getDaXianSiHua, getSiHuaByStem } from './sihua';
+import { CHILDHOOD_DAXIAN_INDEX, getChildhoodDaXianPalace } from './yunxian-context';
 
 /** 命宫起算的宫序：0=命宫，1=兄弟，…，11=父母（地支逆时针每减 1 进一宫） */
 function palaceOffset(chart: ZiweiChart, palace: Palace): number {
@@ -157,43 +158,62 @@ function renderBasics(chart: ZiweiChart): string {
   return lines.join('\n');
 }
 
+/** 「太阳 在 兄弟」—— 四化落在哪一宫比只报星名有用得多 */
+function starLocation(chart: ZiweiChart, starName: string): string {
+  if (!starName) return '—';
+  const p = chart.palaces.find(pl => pl.stars.some(s => s.name === starName));
+  return p ? `${starName} 在 ${p.name}` : `${starName}（本盘未见）`;
+}
+
+function renderSihuaBlock(chart: ZiweiChart, map: Record<SiHua, string>): string[] {
+  return (['禄', '权', '科', '忌'] as SiHua[])
+    .map(h => `- 化${h}：${starLocation(chart, map[h])}`);
+}
+
 function renderBirthSihua(chart: ZiweiChart): string {
-  const map = getSiHuaByStem(chart.lunarInfo.yearStem);
   const stem = STEMS[chart.lunarInfo.yearStem] ?? '?';
-  const where = (starName: string): string => {
-    if (!starName) return '—';
-    const p = chart.palaces.find(pl => pl.stars.some(s => s.name === starName));
-    return p ? `${starName} 在 ${p.name}` : `${starName}（本盘未见）`;
-  };
   return [
     `生年 ${stem} 干四化：`,
-    `- 化禄：${where(map['禄'])}`,
-    `- 化权：${where(map['权'])}`,
-    `- 化科：${where(map['科'])}`,
-    `- 化忌：${where(map['忌'])}`,
+    ...renderSihuaBlock(chart, getSiHuaByStem(chart.lunarInfo.yearStem)),
   ].join('\n');
 }
 
 function renderCurrentDaXian(chart: ZiweiChart): string {
-  const dx = chart.daXians[chart.currentDaXianIndex];
-  if (!dx) {
-    // currentDaXianIndex 可能是童限标记（CHILDHOOD_DAXIAN_INDEX = -2）
-    return `当前运限：童限或未落在已排的大限区间内（currentDaXianIndex=${chart.currentDaXianIndex}，当前 ${chart.currentAge} 岁）。`;
-  }
-  const lines = [
-    `当前大限：第 ${chart.currentDaXianIndex + 1} 限，${dx.startAge}–${dx.endAge} 岁，` +
-    `落 ${dx.palaceName}（${dx.stemName ?? '?'}${BRANCHES[dx.palaceBranch] ?? '?'}）`,
-  ];
-  if (dx.siHua) {
+  const idx = chart.currentDaXianIndex;
+  const lines: string[] = [];
+
+  if (idx === CHILDHOOD_DAXIAN_INDEX) {
+    const p = getChildhoodDaXianPalace(chart);
     lines.push(
-      `大限宫干 ${dx.siHua.stemName} 四化：化禄 ${dx.siHua.lu || '—'}、化权 ${dx.siHua.quan || '—'}、` +
-      `化科 ${dx.siHua.ke || '—'}、化忌 ${dx.siHua.ji || '—'}`,
+      `当前运限：童限（尚未进入第一个大限），当前 ${chart.currentAge} 岁，` +
+      `落 ${p ? `${p.name}（${ganzhi(p.stem, p.branch)}）` : '未能定位'}`,
     );
+  } else {
+    const dx = chart.daXians[idx];
+    if (!dx) {
+      lines.push(`当前运限：currentDaXianIndex=${idx} 未落在已排的大限区间内（当前 ${chart.currentAge} 岁）。`);
+    } else {
+      // 引擎不在 daXians 上预存 stemName，按大限宫的宫干现取
+      const palace = chart.palaces.find(p => p.branch === dx.palaceBranch);
+      const stem = dx.stemName ?? (palace ? STEMS[palace.stem] : undefined) ?? '?';
+      lines.push(
+        `当前大限：第 ${idx + 1} 限，${dx.startAge}–${dx.endAge} 岁，` +
+        `落 ${dx.palaceName}（${stem}${BRANCHES[dx.palaceBranch] ?? '?'}）`,
+      );
+    }
   }
-  const all = chart.daXians
-    .map(d => `${d.startAge}–${d.endAge}→${d.palaceName}`)
-    .join('，');
-  lines.push(`全部大限：${all}`);
+
+  // 大限四化同样不预存在盘上（getDaXianSiHua 按宫干现算，童限也认）。
+  // 这里一律服务端重算，不采信前端送来的 dx.siHua。
+  const sihua = getDaXianSiHua(chart, idx);
+  if (sihua) {
+    lines.push(`大限宫干 ${sihua.stemName} 四化：`);
+    lines.push(...renderSihuaBlock(chart, sihua.transforms));
+  } else {
+    lines.push('大限四化：未能定位大限宫，略。');
+  }
+
+  lines.push(`全部大限：${chart.daXians.map(d => `${d.startAge}–${d.endAge}→${d.palaceName}`).join('，')}`);
   return lines.join('\n');
 }
 
