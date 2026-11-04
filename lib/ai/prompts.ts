@@ -17,6 +17,9 @@
 import 'server-only';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import {
+  VI_BRIGHTNESS, VI_MAJOR_STARS, VI_PALACES, VI_SIHUA,
+} from '@/lib/i18n/terms';
+import {
   HEMING_METHODOLOGY,
   HEMING_SCORE_CRITERIA,
   MARRIAGE_STARS_BRIEF,
@@ -32,6 +35,39 @@ const FORMAT_RULES = `
 - 其余都是普通段落，一行一句
 - 禁止使用：# 号标题、- 或 * 开头的列表、| 表格、\`\`\` 代码块、HTML 标签
 - 用户的提问里若指定了小节结构，就按它给的小节名逐节输出，不增不减
+`.trim();
+
+/**
+ * 回答语言跟着提问走。专名表直接由 lib/i18n/terms.ts 生成 —— 界面怎么显示，
+ * 模型就怎么说，不会出现界面写 "Tử Vi" 而解读里写 "Sao Tím" 的情况。
+ *
+ * 只列主星、宫位、四化、亮度：这四类几乎句句都要用，必须钉死。其余专名交给
+ * 模型按汉越音转写，全表灌进去会把上下文撑爆，收益也不大。
+ */
+function viGlossary(): string {
+  const pairs = (t: Record<string, string>) =>
+    Object.entries(t).map(([zh, v]) => `${zh}=${v}`).join('、');
+  return [
+    `十四主星：${pairs(VI_MAJOR_STARS)}`,
+    `十二宫：${pairs(VI_PALACES)}`,
+    `四化：${pairs(VI_SIHUA)}`,
+    `亮度：${pairs(VI_BRIGHTNESS)}`,
+  ].join('\n');
+}
+
+const LANGUAGE_RULES = `
+## 回答语言
+
+- **用用户提问所用的语言回答**。越南语问就越南语答，中文问就中文答，英文问就英文答。
+  下面的命盘数据一律是中文，那是给你看的原始资料，不决定你用什么语言输出。
+- 用越南语回答时，命理专名用**汉越音**（越南紫微的通行叫法），不要意译，
+  也不要保留汉字：紫微 写成 Tử Vi，不是「紫微」也不是 "Ngôi sao tím"。
+  下表没有的专名，按汉越音读法转写。
+
+${viGlossary()}
+
+- 小节标题同样翻译，但 **【】** 这对符号保留不动 —— 前端靠它识别小节。
+  例：**【命格定性】** → **【Định tính mệnh cục】**
 `.trim();
 
 const BOUNDARY_RULES = `
@@ -62,6 +98,7 @@ const ROLE = `
 export function buildInterpretSystem(chartContext: string): string {
   return [
     ROLE,
+    LANGUAGE_RULES,
     FORMAT_RULES,
     BOUNDARY_RULES,
     `
@@ -149,6 +186,7 @@ export function buildHemingKnowledge(chartA: ZiweiChart, chartB: ZiweiChart): st
 export function buildHemingSystem(hemingContext: string, knowledge: string): string {
   return [
     ROLE,
+    LANGUAGE_RULES,
     FORMAT_RULES,
     BOUNDARY_RULES,
     `
