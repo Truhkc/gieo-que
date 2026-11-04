@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import BirthForm from '@/components/BirthForm';
+import { useI18n } from '@/components/LocaleProvider';
 import ChartBoard from '@/components/ChartBoard';
 import InsightPanel from '@/components/InsightPanel';
 import TimeNav, { type TimeView } from '@/components/TimeNav';
@@ -18,6 +19,7 @@ import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
  * 完全开放（见 lib/ziwei/*），可自由二次开发出你自己的界面。
  */
 export default function ChartPage() {
+  const { t } = useI18n();
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
   const [view, setView] = useState<TimeView>('mingpan');
@@ -27,12 +29,11 @@ export default function ChartPage() {
   if (!chart) {
     return (
       <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px' }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Lập lá số Tử Vi Đẩu Số</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>{t('chart.title')}</h1>
         <p style={{ color: '#888', marginBottom: 32, fontSize: 14, lineHeight: 1.7 }}>
-          Nhập ngày giờ sinh, engine mã nguồn mở lập lá số ngay lập tức.
+          {t('chart.subtitle')}
           <br />
-          (Trang này là bản Demo của engine. Nhân lõi lập lá số — an sao, tứ hoá,
-          cách cục, thư viện cổ tịch — mở hoàn toàn.)
+          {t('chart.demoNote')}
         </p>
         <BirthForm onSubmit={(info: BirthInfo) => setChart(generateChart(info))} />
       </main>
@@ -50,7 +51,7 @@ export default function ChartPage() {
           border: '1px solid #ccc', borderRadius: 8, background: 'transparent',
         }}
       >
-        ← Lập lá số khác
+        {t('chart.back')}
       </button>
 
       <TimeNav

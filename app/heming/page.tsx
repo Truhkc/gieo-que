@@ -6,6 +6,7 @@ import { formToBirthInfo } from '@/lib/ziwei/share';
 import { generateChart as buildChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
 import { useTheme } from '@/components/ThemeProvider';
+import { useI18n } from '@/components/LocaleProvider';
 
 // ─── AiContent 渲染器（与 InsightPanel 一致）────────────────
 function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
@@ -50,6 +51,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
 export default function HemingPage() {
   const router = useRouter();
   const { theme } = useTheme();
+  const { locale } = useI18n();
   const isDark = theme === 'dark';
 
   // ─── 双方命盘状态 ─────────────────────────────────────────
@@ -111,7 +113,7 @@ export default function HemingPage() {
       const res = await fetch('/api/heming', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chartA: cA, chartB: cB, question: q ?? undefined }),
+        body: JSON.stringify({ chartA: cA, chartB: cB, question: q ?? undefined, locale }),
       });
       if (res.status === 404) { setApiMissing(true); throw new Error('api-missing'); }
       if (!res.ok || !res.body) throw new Error();

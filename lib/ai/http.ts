@@ -48,6 +48,15 @@ export async function readJsonBody(req: Request): Promise<Record<string, unknown
 }
 
 /** 超限时返回 429 Response，正常时返回 null */
+/**
+ * Ngôn ngữ giao diện do client gửi kèm, chỉ dùng cho các câu thông báo mà
+ * server tự sinh (lỗi upstream, nhắc cấu hình thiếu). Nội dung giải đoán thì
+ * không cần: prompt viết bằng ngôn ngữ nào, model trả lời ngôn ngữ đó.
+ */
+export function readLocale(body: Record<string, unknown>): 'vi' | 'zh' {
+  return body.locale === 'zh' ? 'zh' : 'vi';
+}
+
 export function rateLimitGuard(req: Request): Response | null {
   const { limit, windowMs } = rateLimitConfig();
   const result = checkRateLimit(clientKey(req), limit, windowMs);

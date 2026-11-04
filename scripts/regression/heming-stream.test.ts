@@ -10,7 +10,7 @@ assert.ok(start >= 0 && end > start);
 const body = `export function makeRun(ctx) {
   const {chartA,chartB,formA,formB,generateChart,formToBirthInfo,setFormError,
     setAnalyzing,setAnalysis,setAnalysisError,setChartA,setChartB,fetch,
-    setApiMissing,analysisRef} = ctx;
+    setApiMissing,analysisRef,locale} = ctx;
   const useCallback = (fn) => fn;
   ${source.slice(start, end)}
   return runAnalysis;
@@ -30,7 +30,7 @@ async function consume(chunks: Uint8Array[]) {
     setChartA: noop, setChartB: noop, setFormError: noop, setAnalyzing: noop,
     setAnalysis: (value: string) => { text = value; },
     setAnalysisError: (value: boolean) => { failed = value; },
-    setApiMissing: noop, analysisRef: { current: null },
+    setApiMissing: noop, analysisRef: { current: null }, locale: 'vi',
     fetch: async () => ({ status: 200, ok: true, body: new ReadableStream({
       start(controller) { for (const chunk of chunks) controller.enqueue(chunk); controller.close(); },
     }) }),

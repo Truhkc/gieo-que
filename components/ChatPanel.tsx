@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart } from '@/lib/ziwei/types';
+import { useI18n } from './LocaleProvider';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -22,6 +23,7 @@ const PRESET_QUESTIONS = [
 ];
 
 export default function ChatPanel({ chart }: ChatPanelProps) {
+  const { locale } = useI18n();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,7 +46,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chart, messages: [...messages, userMsg] }),
+        body: JSON.stringify({ chart, messages: [...messages, userMsg], locale }),
       });
 
       if (res.status === 404) throw new Error('api-missing');

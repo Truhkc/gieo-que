@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { LocaleProvider } from '@/components/LocaleProvider';
+import LocaleToggle from '@/components/LocaleToggle';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_URL } from '@/lib/site';
@@ -38,13 +40,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('ziwei-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('ziwei-theme');document.documentElement.setAttribute('data-theme',(t==='light'||t==='dark')?t:'dark');var l=localStorage.getItem('ziwei-locale');document.documentElement.setAttribute('lang',l==='zh'?'zh-CN':'vi');}catch(e){}})();` }} />
       </head>
       <body className="min-h-screen">
         <ThemeProvider>
-          {children}
+          <LocaleProvider>
+            {children}
+            <LocaleToggle />
+          </LocaleProvider>
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

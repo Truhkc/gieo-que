@@ -66,7 +66,12 @@ export const DONE_FRAME = 'data: [DONE]\n\n';
  */
 export function deltaStreamResponse(
   source: AsyncIterable<string>,
-  init: { status?: number; headers?: Record<string, string> } = {},
+  init: {
+    status?: number;
+    headers?: Record<string, string>;
+    /** Câu báo lỗi đẩy xuống client khi upstream gãy giữa chừng, theo ngôn ngữ người dùng */
+    errorText?: string;
+  } = {},
 ): Response {
   const encoder = new TextEncoder();
 
@@ -80,7 +85,9 @@ export function deltaStreamResponse(
         // 服务端留全量日志，返回给前端的只有一句人话，不带堆栈或 key
         console.error('[ai] stream aborted:', err);
         controller.enqueue(
-          encoder.encode(encodeDelta('\n\n（生成中断：上游模型接口出错，请稍后重试。）')),
+          encoder.encode(encodeDelta(
+            init.errorText ?? '\n\n（生成中断：上游模型接口出错，请稍后重试。）',
+          )),
         );
       } finally {
         controller.enqueue(encoder.encode(DONE_FRAME));

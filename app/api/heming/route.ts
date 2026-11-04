@@ -13,13 +13,20 @@ import { buildHemingKnowledge, buildHemingSystem } from '@/lib/ai/prompts';
 import { resolveProvider, streamChat, type ChatMessage } from '@/lib/ai/provider';
 import { deltaStreamResponse, textAsDeltaStream } from '@/lib/ai/sse';
 import { singleQuestion } from '@/lib/ai/messages';
-import { HttpError, jsonError, rateLimitGuard, readJsonBody } from '@/lib/ai/http';
+import { HttpError, jsonError, rateLimitGuard, readJsonBody, readLocale } from '@/lib/ai/http';
 import { ChartInputError, sanitizeChart } from '@/lib/ziwei/chart-input';
 import { buildHemingContext } from '@/lib/ziwei/chart-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
+
+
+/** Câu báo lỗi khi upstream gãy giữa dòng, theo ngôn ngữ giao diện */
+const STREAM_ERROR: Record<'vi' | 'zh', string> = {
+  vi: '\n\n(Gián đoạn: API mô hình báo lỗi, vui lòng thử lại sau.)',
+  zh: '\n\n（生成中断：上游模型接口出错，请稍后重试。）',
+};
 
 const TASK = '请按系统提示词给定的小节，对下面这两张命盘做合盘分析。';
 
@@ -29,9 +36,11 @@ export async function POST(req: Request): Promise<Response> {
 
   let system: string;
   let messages: ChatMessage[];
+  let locale: 'vi' | 'zh' = 'vi';
 
   try {
     const body = await readJsonBody(req);
+    locale = readLocale(body);
     const chartA = sanitizeChart(body.chartA, 'chartA');
     const chartB = sanitizeChart(body.chartB, 'chartB');
     messages = singleQuestion(body.question, TASK);
@@ -48,11 +57,16 @@ export async function POST(req: Request): Promise<Response> {
 
   const resolved = resolveProvider();
   if (!resolved.ok) {
-    console.error('[api/heming] provider not configured:', resolved.reason);
+    console.error('[api/heming] provider not configured:', resolved.reason.zh);
     return textAsDeltaStream(
-      `**【合盘 AI 分析尚未配置】**\n\n${resolved.reason}\n\n` +
-        '双方的命盘已经在浏览器里用本仓库的排盘引擎算好了，可以分别到「排盘」页查看；' +
-        '只有这段合盘分析需要配置模型。变量清单见仓库根目录的 `.env.example`。',
+      locale === 'zh'
+        ? `**【合盘 AI 分析尚未配置】**\n\n${resolved.reason.zh}\n\n` +
+          '双方的命盘已经在浏览器里用本仓库的排盘引擎算好了，可以分别到「排盘」页查看；' +
+          '只有这段合盘分析需要配置模型。变量清单见仓库根目录的 `.env.example`。'
+        : `**【Chưa cấu hình AI hợp bàn】**\n\n${resolved.reason.vi}\n\n` +
+          'Lá số của cả hai người đã được engine trong repo tính xong ngay trên trình duyệt, ' +
+          'có thể xem riêng ở trang «Lập lá số». Chỉ phần phân tích hợp bàn này cần khai báo mô hình. ' +
+          'Danh sách biến xem ở `.env.example` tại thư mục gốc.',
       { headers: { 'x-ai-config': 'missing' } },
     );
   }
@@ -66,5 +80,6 @@ export async function POST(req: Request): Promise<Response> {
       temperature: 0.6,
       signal: req.signal,
     }),
+    { errorText: STREAM_ERROR[locale] },
   );
 }

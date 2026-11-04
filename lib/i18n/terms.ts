@@ -206,3 +206,32 @@ export function viPattern(name: string): string {
   }
   return name;
 }
+
+// ─── Lớp nhận biết ngôn ngữ ────────────────────────────────
+
+export type Locale = 'vi' | 'zh';
+
+/**
+ * Chuyển một chuyên danh mệnh lý sang ngôn ngữ đang chọn.
+ *
+ * Với 'zh' thì trả về nguyên văn chữ Hán — engine vốn đã nói tiếng Trung,
+ * nên đường tiếng Trung không tốn một phép tra nào.
+ */
+export function term(name: string, locale: Locale): string {
+  return locale === 'zh' ? name : vi(name);
+}
+
+/** Tên cách cục theo ngôn ngữ đang chọn */
+export function termPattern(name: string, locale: Locale): string {
+  return locale === 'zh' ? name : viPattern(name);
+}
+
+/** Can chi: 甲子 / Giáp Tý */
+export function termGanZhi(stem: string, branch: string, locale: Locale): string {
+  return locale === 'zh' ? `${stem}${branch}` : viGanZhi(stem, branch);
+}
+
+/** Tứ hoá: 化禄 / hoá Lộc */
+export function termSihua(hua: string, locale: Locale): string {
+  return locale === 'zh' ? `化${hua}` : viSihua(hua);
+}

@@ -80,9 +80,15 @@ const PRESETS: Record<string, Preset> = {
   },
 };
 
+/** Lý do thiếu cấu hình, hai ngôn ngữ — route chọn theo locale người dùng gửi lên */
+export interface ConfigReason {
+  vi: string;
+  zh: string;
+}
+
 export type ProviderResult =
   | { ok: true; provider: AiProvider }
-  | { ok: false; reason: string };
+  | { ok: false; reason: ConfigReason };
 
 function env(name: string): string {
   return (process.env[name] ?? '').trim();
@@ -97,25 +103,29 @@ export function resolveProvider(): ProviderResult {
   const baseUrl = (env(preset.baseUrlEnv) || preset.defaultBaseUrl).replace(/\/+$/, '');
   const model = env(preset.modelEnv) || preset.defaultModel;
 
-  if (!PRESETS[id]) {
-    if (!baseUrl || !apiKey || !model) {
-      return {
-        ok: false,
-        reason:
-          `AI_PROVIDER="${id}" 不是内置档位（deepseek / anthropic / openai / mimo / custom），` +
-          '按自定义端点处理时需要同时配好 AI_BASE_URL、AI_API_KEY、AI_MODEL。',
-      };
-    }
+  if (!PRESETS[id] && (!baseUrl || !apiKey || !model)) {
+    return {
+      ok: false,
+      reason: {
+        zh: `AI_PROVIDER="${id}" 不是内置档位（deepseek / anthropic / openai / mimo / custom），` +
+            '按自定义端点处理时需要同时配好 AI_BASE_URL、AI_API_KEY、AI_MODEL。',
+        vi: `AI_PROVIDER="${id}" không phải lựa chọn có sẵn (deepseek / anthropic / openai / mimo / custom). ` +
+            'Dùng như một endpoint tự định nghĩa thì phải khai báo đủ AI_BASE_URL, AI_API_KEY và AI_MODEL.',
+      },
+    };
   }
-  if (!apiKey) {
-    return { ok: false, reason: `AI_PROVIDER="${id}" 缺少 ${preset.keyEnv}，请在 .env.local 里配置。` };
-  }
-  if (!baseUrl) {
-    return { ok: false, reason: `AI_PROVIDER="${id}" 缺少 ${preset.baseUrlEnv}。` };
-  }
-  if (!model) {
-    return { ok: false, reason: `AI_PROVIDER="${id}" 缺少 ${preset.modelEnv}。` };
-  }
+
+  const missing = (envName: string): ProviderResult => ({
+    ok: false,
+    reason: {
+      zh: `AI_PROVIDER="${id}" 缺少 ${envName}，请在 .env.local 里配置。`,
+      vi: `AI_PROVIDER="${id}" còn thiếu ${envName} — hãy khai báo trong .env.local.`,
+    },
+  });
+
+  if (!apiKey) return missing(preset.keyEnv);
+  if (!baseUrl) return missing(preset.baseUrlEnv);
+  if (!model) return missing(preset.modelEnv);
 
   return { ok: true, provider: { id, kind: preset.kind, baseUrl, apiKey, model } };
 }

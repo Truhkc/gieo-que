@@ -12,7 +12,7 @@ assert.ok(start >= 0 && end > start);
 const body = `export function makeRun(ctx) {
   const {chartA,chartB,formA,formB,generateChart,formToBirthInfo,setFormError,
     setAnalyzing,setAnalysis,setAnalysisError,setChartA,setChartB,fetch,
-    setApiMissing,analysisRef} = ctx;
+    setApiMissing,analysisRef,locale} = ctx;
   const useCallback = (fn) => fn;
   ${source.slice(start, end)}
   return runAnalysis;
@@ -27,14 +27,18 @@ const form = { year: '1990', month: '1', day: '1', clockHour: '8', clockMinute: 
 let chartA: unknown = null;
 let chartB: unknown = null;
 let currentForm = { ...form };
-const requests: { chartA: { birthInfo: BirthInfo }; chartB: { birthInfo: BirthInfo } }[] = [];
+const requests: {
+  chartA: { birthInfo: BirthInfo };
+  chartB: { birthInfo: BirthInfo };
+  locale?: string;
+}[] = [];
 const context = () => ({
   chartA, chartB, formA: currentForm, formB: { ...form, name: 'B' }, formToBirthInfo,
   generateChart: async (birthInfo: BirthInfo) => ({ birthInfo }),
   setChartA: (value: unknown) => { chartA = value; },
   setChartB: (value: unknown) => { chartB = value; },
   setFormError: noop, setAnalyzing: noop, setAnalysis: noop, setAnalysisError: noop,
-  setApiMissing: noop, analysisRef: { current: null },
+  setApiMissing: noop, analysisRef: { current: null }, locale: 'vi',
   fetch: async (_url: string, options: { body: string }) => {
     requests.push(JSON.parse(options.body));
     return { status: 200, ok: true, body: new ReadableStream({ start(controller) { controller.close(); } }) };
@@ -48,6 +52,7 @@ async function main() {
   assert.equal(requests[0].chartA.birthInfo.year, 1990);
   assert.equal(requests[1].chartA.birthInfo.year, 1991, 'the second request must use edited birth data');
   assert.equal(requests[1].chartB.birthInfo.name, 'B');
+  assert.equal(requests[0].locale, 'vi', 'the request must carry the UI locale for server-side messages');
   console.log('Heming edited-form request regression passed');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
