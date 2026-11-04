@@ -54,36 +54,39 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistantText = '';
+      // SSE 帧可能被网络在 JSON 中间切断，必须跨 chunk 缓冲未读完的半行，
+      // 否则长解读会随机丢字。读法与 app/heming/page.tsx 保持一致。
+      let pending = '';
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') break;
-            try {
-              const parsed = JSON.parse(data);
-              const delta = parsed.delta?.text ?? '';
-              assistantText += delta;
-              setMessages(prev => {
-                const updated = [...prev];
-                updated[updated.length - 1] = { role: 'assistant', content: assistantText };
-                return updated;
-              });
-            } catch { /* skip */ }
-          }
+        pending += decoder.decode(value, { stream: true });
+        const lines = pending.split('\n');
+        pending = lines.pop() ?? '';
+        for (const rawLine of lines) {
+          const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') break;
+          try {
+            const delta = JSON.parse(data).delta?.text ?? '';
+            assistantText += delta;
+            setMessages(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = { role: 'assistant', content: assistantText };
+              return updated;
+            });
+          } catch { /* skip */ }
         }
       }
     } catch (e) {
       const missing = e instanceof Error && e.message === 'api-missing';
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: missing ? '开源版不含 AI 解读接口（/api/interpret），需要你自己实现后才能用，详见 README「快速开始」。排盘本身不需要任何 API Key。' : '解读失败，请检查API配置或稍后重试。',
+        content: missing ? '找不到 /api/interpret —— 本仓库已内置该接口，请确认 app/api/interpret/route.ts 存在并重启开发服务器。排盘本身不需要任何 API Key。' : '解读失败，请检查API配置或稍后重试。',
       }]);
     } finally {
       setLoading(false);
