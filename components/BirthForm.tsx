@@ -5,7 +5,7 @@ import type { BirthInfo } from '@/lib/ziwei/types';
 import { useI18n } from './LocaleProvider';
 import { SHICHEN } from '@/lib/ziwei/constants';
 import { useTheme } from '@/components/ThemeProvider';
-import { PROVINCES } from '@/lib/ziwei/cities';
+import { CN_GROUP, DEFAULT_UTC_OFFSET_MINUTES, VN_GROUP, findProvince } from '@/lib/ziwei/locations';
 import { formToBirthInfo, calcTrueSolarBranch } from '@/lib/ziwei/share';
 
 export interface BirthFormState {
@@ -19,6 +19,11 @@ export interface BirthFormState {
   province: string;
   city: string;
   longitude: number;
+  /**
+   * Độ lệch múi giờ nơi sinh (phút); 480 = giờ Bắc Kinh, 420 = Việt Nam.
+   * Tuỳ chọn: vắng mặt thì coi như 480, giữ nguyên hành vi của dữ liệu gốc.
+   */
+  utcOffsetMinutes?: number;
   gender: 'male' | 'female';
 }
 
@@ -56,6 +61,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     province: initialData?.province ?? '',
     city: initialData?.city ?? '',
     longitude: initialData?.longitude ?? 120,
+    utcOffsetMinutes: initialData?.utcOffsetMinutes ?? DEFAULT_UTC_OFFSET_MINUTES,
     gender: initialData?.gender ?? 'male',
   });
 
@@ -69,7 +75,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   }, [form]);
 
   const cityList = useMemo(() => {
-    const prov = PROVINCES.find(p => p.name === form.province);
+    const prov = findProvince(form.province);
     return prov ? prov.cities : [];
   }, [form.province]);
 
@@ -79,10 +85,13 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       parseInt(form.clockHour) || 0,
       parseInt(form.clockMinute) || 0,
       form.longitude,
+      form.utcOffsetMinutes,
     );
-  }, [form.clockHour, form.clockMinute, form.longitude, form.unknownTime]);
+  }, [form.clockHour, form.clockMinute, form.longitude, form.utcOffsetMinutes, form.unknownTime]);
 
-  const offsetMin = Math.round((form.longitude - 120) * 4);
+  const offsetMin = Math.round(
+    (form.longitude - (form.utcOffsetMinutes ?? DEFAULT_UTC_OFFSET_MINUTES) / 4) * 4,
+  );
   const shichenInfo = SHICHEN[branch];
 
   // ─── 校验逻辑 ───────────────────────────────────────────
@@ -122,13 +131,19 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     : '';
 
   const handleProvince = (prov: string) => {
-    const provData = PROVINCES.find(p => p.name === prov);
+    const provData = findProvince(prov);
     const firstCity = provData?.cities[0];
-    setForm({ ...form, province: prov, city: firstCity?.name || '', longitude: firstCity?.longitude ?? 120 });
+    setForm({
+      ...form,
+      province: prov,
+      city: firstCity?.name || '',
+      longitude: firstCity?.longitude ?? 120,
+      utcOffsetMinutes: provData?.utcOffsetMinutes ?? DEFAULT_UTC_OFFSET_MINUTES,
+    });
   };
 
   const handleCity = (cityName: string) => {
-    const prov = PROVINCES.find(p => p.name === form.province);
+    const prov = findProvince(form.province);
     const cityData = prov?.cities.find(c => c.name === cityName);
     setForm({ ...form, city: cityName, longitude: cityData?.longitude ?? 120 });
   };
@@ -296,9 +311,16 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             onBlur={e => { e.target.style.borderColor = inputBorder; }}
           >
             <option value="">{t('form.province')}</option>
-            {PROVINCES.map(p => (
-              <option key={p.name} value={p.name}>{p.name}</option>
-            ))}
+            <optgroup label={t('form.group.vn')}>
+              {VN_GROUP.map(p => (
+                <option key={p.name} value={p.name}>{p.name}</option>
+              ))}
+            </optgroup>
+            <optgroup label={t('form.group.cn')}>
+              {CN_GROUP.map(p => (
+                <option key={p.name} value={p.name}>{p.name}</option>
+              ))}
+            </optgroup>
           </select>
           <select
             value={form.city}
@@ -371,7 +393,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             </span>
             {shichenInfo && (
               <span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)', marginLeft: '4px' }}>
-                （{shichenInfo.range}）
+                {t('form.shichenRange', { range: shichenInfo.range })}
               </span>
             )}
           </div>

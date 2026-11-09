@@ -6,6 +6,17 @@ export interface CityInfo {
 export interface ProvinceInfo {
   name: string;
   cities: CityInfo[];
+  /**
+   * Quốc gia của tỉnh/thành. Vắng mặt = 'CN', giữ nguyên dữ liệu gốc.
+   * Dùng để nhóm danh sách chọn trong biểu mẫu.
+   */
+  country?: 'CN' | 'VN';
+  /**
+   * Độ lệch chuẩn của múi giờ nơi sinh, tính bằng phút (đông dương).
+   * Vắng mặt = 480 (giờ Bắc Kinh), đúng cho toàn bộ dữ liệu gốc.
+   * Kinh tuyến trung tâm = utcOffsetMinutes / 4, nên 480 → 120°E, 420 → 105°E.
+   */
+  utcOffsetMinutes?: number;
 }
 
 // ★ 2026-10-07 用户反馈「出生地点还不够全」→ 补全全国区县（直辖市以外 2724 个，挂在各地级市下）。

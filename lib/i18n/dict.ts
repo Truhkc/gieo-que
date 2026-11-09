@@ -221,6 +221,10 @@ export const UI = {
   },
   'home.footer.terms': { vi: 'Điều khoản dịch vụ', zh: '服务条款' },
   'home.footer.privacy': { vi: 'Chính sách riêng tư', zh: '隐私政策' },
+
+  'form.group.vn': { vi: 'Việt Nam', zh: '越南' },
+  'form.group.cn': { vi: 'Trung Quốc', zh: '中国' },
+  'form.shichenRange': { vi: '({range})', zh: '（{range}）' },
 } as const satisfies Record<string, Entry>;
 
 export type UiKey = keyof typeof UI;
