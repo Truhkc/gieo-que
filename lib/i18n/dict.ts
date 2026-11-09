@@ -130,6 +130,97 @@ export const UI = {
     zh: '找不到 /api/interpret —— 本仓库已内置该接口，请确认 app/api/interpret/route.ts 存在并重启开发服务器。排盘本身不需要任何 API Key。',
   },
   'insight.err.failed': { vi: 'Giải đoán thất bại, vui lòng thử lại sau.', zh: '解读失败，请稍后重试。' },
+
+  // ── Trang chủ ────────────────────────────────────────────
+  'home.niMethod': { vi: 'Phép lập lá số Nghê Hải Hạ', zh: '倪海厦排盘法' },
+  'home.starGroup.ziwei': { vi: 'Chòm Tử Vi', zh: '紫微系' },
+  'home.starGroup.tianfu': { vi: 'Chòm Thiên Phủ', zh: '天府系' },
+  'home.sihuaFlying': { vi: 'Tứ hoá phi tinh', zh: '四化飞星' },
+  'home.patternsCount': {
+    vi: 'Tự động nhận diện hơn 40 cách cục kinh điển',
+    zh: '自动识别 40 多种经典格局',
+  },
+
+  'home.nav.brand': { vi: 'Lá số Tử Vi', zh: '紫微命盘' },
+  'home.nav.heming': { vi: 'Hợp bàn', zh: '合盘' },
+  'home.cta': { vi: 'Lập lá số', zh: '立即起盘' },
+  'home.hero.tag': { vi: 'Tử Vi Đẩu Số · hệ Nghê Hải Hạ', zh: '紫微斗数 · 倪海厦体系' },
+  'home.hero.line1': {
+    vi: 'Tử Vi là cửa · Thiên Địa Nhân là đường · Nghê Hải Hạ là thầy',
+    zh: '紫微为门 · 天地人为路 · 倪海厦为师',
+  },
+  'home.hero.line2': { vi: 'AI giải đáp · tri hành hợp nhất', zh: 'AI 答疑 · 知行合一' },
+  'home.hero.sub': {
+    vi: 'Nhập ngày giờ sinh để lập lá số Tử Vi Đẩu Số của riêng bạn.',
+    zh: '输入出生年月日时，生成专属紫微斗数命盘。',
+  },
+  'home.scrollMore': { vi: 'Khám phá thêm', zh: '探索更多' },
+  'home.mingVanQuan': { vi: 'Mệnh · Vận · Quán', zh: '命 · 运 · 观' },
+  'home.scroll.l1': { vi: 'Ý nghĩa của việc hé nhìn vận mệnh', zh: '提前窥探命运的意义' },
+  'home.scroll.l2': { vi: 'không nằm ở biết trước tương lai', zh: '不在于预知未来' },
+  'home.scroll.l3': { vi: 'mà ở chỗ không ngừng hiểu chính mình', zh: '而在于不断认识自己' },
+  'home.scroll.end': { vi: 'Để rồi tự viết kịch bản đời mình', zh: '最终书写属于自己的人生剧本' },
+  'home.sections.title': { vi: 'Các khu vực của trang', zh: '本站板块' },
+  'home.sections.sub': {
+    vi: 'Lập lá số, hợp bàn, và thư viện cổ tịch nguyên văn',
+    zh: '排盘、合盘，以及古籍原文库',
+  },
+  'home.trio.title': { vi: 'Thiên · Địa · Nhân', zh: '天 · 地 · 人' },
+  'home.trio.sub1': {
+    vi: 'Quan niệm cốt lõi của Nghê Hải Hạ về vận mệnh: vận mệnh chưa bao giờ là toàn bộ đời người.',
+    zh: '倪海厦老师的核心命运观：命运从来不是人生的全部。',
+  },
+  'home.trio.sub2': {
+    vi: 'Ông chia các lực ảnh hưởng tới đời người thành ba chiều quan trọng ngang nhau.',
+    zh: '他将影响人生的力量分为三个同等重要的维度。',
+  },
+  'home.trio.quote': {
+    vi: '«Vận mệnh không phải toàn bộ đời người; cộng thêm địa lý và tâm niệm con người, mới là.»',
+    zh: '「命运不是人生的全部，加上地理位置和人念，才是。」',
+  },
+  'home.niName': { vi: 'Nghê Hải Hạ', zh: '倪海厦' },
+
+  'home.heming.title': { vi: 'Hợp bàn Tử Vi', zh: '紫微合盘' },
+  'home.heming.sub1': {
+    vi: 'Nhập thông tin sinh của hai người, AI theo hệ Nghê Hải Hạ đối chiếu cung Phu Thê, độ tương hợp cung Mệnh và tương tác tam phương tứ chính,',
+    zh: '输入两个人的出生信息，AI 基于倪海厦体系分析夫妻宫互参、命宫兼容性与三方四正交互，',
+  },
+  'home.heming.sub2': {
+    vi: 'đưa ra mức hợp tình cảm, khả năng hợp tác và lời khuyên chung sống.',
+    zh: '给出感情匹配度、合伙可行性与最佳相处建议。',
+  },
+  'home.heming.chip1': { vi: 'Phân tích độ hợp tình cảm', zh: '感情匹配度分析' },
+  'home.heming.chip2': { vi: 'Đánh giá hợp tác khởi nghiệp', zh: '合伙创业评估' },
+  'home.heming.chip3': { vi: 'Luận duyên cha mẹ – con cái', zh: '亲子缘分解读' },
+  'home.heming.chip4': { vi: 'Xem hợp tuổi trước hôn nhân', zh: '婚前相性评估' },
+  'home.heming.cta': { vi: 'Bắt đầu hợp bàn', zh: '开始合盘分析' },
+  'home.final.tag': { vi: 'Bắt đầu hành trình lá số của bạn', zh: '开始你的命盘之旅' },
+  'home.final.title1': { vi: 'Lá số Tử Vi của bạn', zh: '你的紫微命盘' },
+  'home.final.title2': { vi: 'đang chờ được luận giải', zh: '等你解读' },
+  'home.final.sub1': {
+    vi: 'Nhập ngày giờ sinh, lá số riêng của bạn hiện ra trong vài giây',
+    zh: '输入出生年月日时，在几秒内生成你的专属命盘',
+  },
+  'home.final.sub2': {
+    vi: 'rồi AI luận giải sâu theo hệ Nghê Hải Hạ',
+    zh: '再由 AI 按倪海厦体系为你深度解读',
+  },
+  'home.final.cta': { vi: 'Lập lá số miễn phí', zh: '免费起盘' },
+  'home.link.library': { vi: '📜 Thư viện cổ tịch nguyên văn →', zh: '📜 古籍原典库 →' },
+  'home.footer.line1': {
+    vi: 'Lá số Tử Vi · dựa trên hệ Nghê Hải Hạ · chỉ để tham khảo, vận mệnh nằm trong tay bạn',
+    zh: '紫微命盘 · 基于倪海厦正宗体系 · 仅供参考，命运掌握在自己手中',
+  },
+  'home.footer.line2': {
+    vi: 'Trang này dựa trên nghiên cứu văn hoá truyền thống, chỉ cung cấp tham khảo để học tập.',
+    zh: '本平台基于中国传统文化研究，仅提供学习参考。',
+  },
+  'home.footer.line3': {
+    vi: 'Không cấu thành bất kỳ lời khuyên y tế, đầu tư, pháp lý hay quyết định hệ trọng nào.',
+    zh: '不构成任何医疗、投资、法律或重大决策建议。',
+  },
+  'home.footer.terms': { vi: 'Điều khoản dịch vụ', zh: '服务条款' },
+  'home.footer.privacy': { vi: 'Chính sách riêng tư', zh: '隐私政策' },
 } as const satisfies Record<string, Entry>;
 
 export type UiKey = keyof typeof UI;
