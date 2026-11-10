@@ -130,6 +130,19 @@ export const UI = {
     zh: '找不到 /api/interpret —— 本仓库已内置该接口，请确认 app/api/interpret/route.ts 存在并重启开发服务器。排盘本身不需要任何 API Key。',
   },
   'insight.err.failed': { vi: 'Giải đoán thất bại, vui lòng thử lại sau.', zh: '解读失败，请稍后重试。' },
+  'insight.dataset.show': {
+    vi: 'Xem nguyên văn bộ dữ liệu (tiếng Trung)',
+    zh: '查看数据集原文',
+  },
+  'insight.dataset.hide': { vi: 'Ẩn nguyên văn', zh: '收起原文' },
+  'insight.dataset.badge': {
+    vi: 'Dựa trên bộ dữ liệu giải đoán 13 chiều · {key}',
+    zh: '依据 13 维解读数据集 · {key}',
+  },
+  'insight.dataset.credit': {
+    vi: 'Các chủ đề giải đoán dựa trên “紫微斗数开源解读数据集 v4.0” của {author}, giấy phép CC BY 4.0; AI chỉ chuyển ngữ và sắp xếp lại. Lời thầy Nghê Hải Hạ được trích trong đó thuộc bản quyền của chủ sở hữu.',
+    zh: '各主题解读依据 {author} 的「紫微斗数开源解读数据集 v4.0」（CC BY 4.0），AI 仅做转述与编排；其中引用的倪海厦原话著作权归原权利人。',
+  },
 
   // ── Trang chủ ────────────────────────────────────────────
   'home.niMethod': { vi: 'Phép lập lá số Nghê Hải Hạ', zh: '倪海厦排盘法' },
