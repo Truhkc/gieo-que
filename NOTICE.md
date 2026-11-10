@@ -55,7 +55,19 @@ Mỗi mục ghi rõ: lấy từ đâu, giấy phép gì, nằm ở đâu trong r
 - **Phạm vi**: `lib/classics/data/gusuifu.ts`, `quanji.ts`, `quanshu.ts`; trang `/library`
 - **Lưu ý**: phần chú giải của thầy Nghê gắn với một số đoạn (`lib/classics/types.ts`) thuộc mục 3, không phải public domain.
 
-## 5. Thư viện npm chính / 主要依赖
+## 5. Google Dịch (dịch máy khi chưa cấu hình AI)
+
+- **Dịch vụ**: endpoint công khai của Google Dịch bản web, `translate.googleapis.com/translate_a/single?client=gtx`
+  (không cần API key; nhiều thư viện trên GitHub dùng cách này).
+- **Phạm vi**: `lib/ai/translate.ts`, `lib/ai/dataset-fallback.ts`. Chỉ dùng khi trang **chưa cấu hình AI**:
+  nội dung tiếng Trung của bộ dữ liệu (mục 2) được dịch máy sang tiếng Việt, tên sao / tên cung được giữ theo
+  âm Hán-Việt bằng bảng `lib/i18n/terms.ts`.
+- **Lưu ý**: đây **không** phải API chính thức của Google và việc gọi tự động trái điều khoản dịch vụ của Google;
+  Google có thể giới hạn hoặc chặn bất cứ lúc nào. Khi đó trang tự hiển thị nguyên văn tiếng Trung.
+  Muốn ổn định lâu dài, chuyển sang Google Cloud Translation / Azure Translator (có key) hoặc cấu hình AI.
+- Phần dịch máy được ghi rõ là "bản dịch máy (Google Dịch)" ngay đầu nội dung hiển thị.
+
+## 6. Thư viện npm chính / 主要依赖
 
 | Gói | Giấy phép | Tác giả / nguồn |
 |-----|-----------|-----------------|
@@ -72,7 +84,7 @@ Mỗi mục ghi rõ: lấy từ đâu, giấy phép gì, nằm ở đâu trong r
 
 Danh sách đầy đủ và giấy phép của từng gói nằm trong `package-lock.json` và thư mục `node_modules/<gói>/LICENSE`.
 
-## 6. Trang Kinh Dịch / 易经页面
+## 7. Trang Kinh Dịch / 易经页面
 
 `public/kinh-dich.html` (từ dự án gieo-que của chủ repo) — phần diễn giải 64 quẻ bằng tiếng Việt hiện chưa ghi nguồn.
 Nếu các diễn giải này lấy từ sách hoặc trang khác, bổ sung nguồn và giấy phép vào đây.

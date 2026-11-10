@@ -423,6 +423,8 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   const [activeTopic, setActiveTopic] = useState<string>('overview');
   // Chủ đề đang bàn: gửi kèm mọi lượt hỏi (kể cả hỏi tiếp) để server lấy đúng nguyên văn bộ dữ liệu
   const topicRef = useRef<TopicKey>('overview');
+  // Câu hỏi do tab / cung tự gửi (không phải người dùng gõ): khi chưa có AI, server trả thẳng bộ dữ liệu
+  const autoRef = useRef(true);
   // Nguyên văn bộ dữ liệu, theo chỉ số của tin nhắn user đã kích hoạt nó
   const [sources, setSources] = useState<Record<number, DatasetSource>>({});
   const [openSource, setOpenSource] = useState<number | null>(null);
@@ -503,7 +505,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chart, messages: apiMessages, locale, topic: topicRef.current }),
+        body: JSON.stringify({ chart, messages: apiMessages, locale, topic: topicRef.current, auto: autoRef.current }),
       });
       if (res.status === 404) throw new Error('api-missing');
       if (!res.ok) throw new Error('请求失败');
@@ -568,6 +570,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
     if (!text.trim() || loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
+    autoRef.current = hidden;
     if (topic) {
       topicRef.current = topic;
       fetchSource(topic, messagesRef.current.length);

@@ -21,6 +21,16 @@ GitHub 下载时快时慢，首次读某一年 3–9 秒，偶尔超过 15 秒�
 页面上每条依据数据集的解读下方有「Xem nguyên văn bộ dữ liệu」可展开中文原文，
 输入框上方常驻 CC BY 4.0 署名。
 
+## 没配 AI 时
+
+主题标签页（以及点宫位）自动发出的提问，`/api/interpret` 在没配 AI 时不再只回「Chưa cấu hình AI」，
+而是直接返回数据集原文：越南语界面用 Google 翻译网页端接口（`client=gtx`，无需 key）机器翻译，
+专名先换成占位符、译完换回汉越音（`lib/ai/translate.ts`），已知小节标题按对照表直接给越南文；
+中文界面直接给原文。响应头 `x-interp-dataset: fallback`。用户自己打字的追问仍提示需要配置 AI。
+
+这个 Google 接口不是正式 API，违反其服务条款，可能被限流或封禁；失败时自动改为显示中文原文。
+单个维度约 2,500–3,700 字，翻译 2–4 秒，同一张盘同一维度在进程内只译一次。
+
 ## 文件
 
 | 文件 | 作用 |
@@ -31,6 +41,8 @@ GitHub 下载时快时慢，首次读某一年 3–9 秒，偶尔超过 15 秒�
 | `app/api/interp-dataset/route.ts` | `GET ?y&m&d&h&g&topic` → 一张盘一个维度的原文 |
 | `app/api/interpret/route.ts` | 请求体新增可选 `topic`；命中情况见响应头 `x-interp-dataset` |
 | `lib/ai/prompts.ts` | `buildInterpretSystem(..., dataset)`：原文放在知识库之前，规定转述与出处规则 |
+| `lib/ai/translate.ts` | 没配 AI 时的 Google 机器翻译（专名占位、标题对照、失败回退） |
+| `lib/ai/dataset-fallback.ts` | 没配 AI 时标签页直接返回的那段文字 |
 | `components/InsightPanel.tsx` | 发送当前主题、展开原文、署名 |
 | `scripts/dataset/pack-interp-v4.ts` | 下载上游按年 zstd 文件 → 每天一个 brotli 对象 |
 | `scripts/dataset/upload-r2.ts` | 把打包结果传到 R2，可断点续传 |
