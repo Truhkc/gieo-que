@@ -230,6 +230,18 @@ const SECTIONS_VI = [
     note: '',
     href: '/library',
   },
+  {
+    // Trang tĩnh gộp từ repo gieo-que (public/kinh-dich.html), không qua router của Next
+    key: 'kinhdich',
+    name: 'Gieo quẻ',
+    en: 'I Ching',
+    desc: 'Gieo quẻ Kinh Dịch · 64 quẻ · hào động',
+    status: 'ready' as const,
+    when: 'Dùng được',
+    icon: '☯',
+    note: '',
+    href: '/kinh-dich.html',
+  },
 ];
 
 const SECTIONS_ZH: typeof SECTIONS_VI = [
@@ -265,6 +277,17 @@ const SECTIONS_ZH: typeof SECTIONS_VI = [
     icon: '⊕',
     note: '',
     href: '/library',
+  },
+  {
+    key: 'kinhdich',
+    name: '易经占卜',
+    en: 'I Ching',
+    desc: '六十四卦 · 动爻',
+    status: 'ready' as const,
+    when: '可用',
+    icon: '☯',
+    note: '',
+    href: '/kinh-dich.html',
   },
 ];
 
@@ -915,7 +938,7 @@ export default function HomePage() {
               opacity: 0.6,
             }} />
 
-          <div className="flex flex-col gap-5 lg:grid lg:grid-cols-3 lg:gap-4">
+          <div className="flex flex-col gap-5 lg:grid lg:grid-cols-4 lg:gap-4">
             {SECTIONS[locale].map((s, i) => {
               const ready = s.status === 'ready';
               return (
@@ -1284,7 +1307,7 @@ export default function HomePage() {
             style={{ color: c.textMuted, opacity: 0.6 }}>
             Các khu vực của trang
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             {SECTIONS[locale].map(s => {
               const ready = s.status === 'ready';
               return (

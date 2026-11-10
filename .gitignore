@@ -7,3 +7,8 @@ dist/
 *.tsbuildinfo
 .DS_Store
 node_modules
+
+# from gieo-que
+iching_data.json
+CLAUDE.md
+.gemini/
