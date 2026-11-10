@@ -13,6 +13,7 @@ const body = `export function makeRun(ctx) {
   const {chartA,chartB,formA,formB,generateChart,formToBirthInfo,setFormError,
     setAnalyzing,setAnalysis,setAnalysisError,setChartA,setChartB,fetch,
     setApiMissing,analysisRef,locale} = ctx;
+  const withUserProvider = ctx.withUserProvider ?? ((b) => b);
   const useCallback = (fn) => fn;
   ${source.slice(start, end)}
   return runAnalysis;

@@ -10,7 +10,8 @@
  * 温度略低一点 —— 合盘要给评级，发挥空间越小越一致。
  */
 import { buildHemingKnowledge, buildHemingSystem } from '@/lib/ai/prompts';
-import { resolveProvider, streamChat, type ChatMessage } from '@/lib/ai/provider';
+import { streamChatWithFallback, type ChatMessage } from '@/lib/ai/provider';
+import { chooseProviders, streamErrorText, userProviderInvalidText, type AiChoice } from '@/lib/ai/choose-provider';
 import { deltaStreamResponse, textAsDeltaStream } from '@/lib/ai/sse';
 import { singleQuestion } from '@/lib/ai/messages';
 import { HttpError, jsonError, rateLimitGuard, readJsonBody, readLocale } from '@/lib/ai/http';
@@ -37,10 +38,12 @@ export async function POST(req: Request): Promise<Response> {
   let system: string;
   let messages: ChatMessage[];
   let locale: 'vi' | 'zh' = 'vi';
+  let choice: AiChoice;
 
   try {
     const body = await readJsonBody(req);
     locale = readLocale(body);
+    choice = await chooseProviders(body);
     const chartA = sanitizeChart(body.chartA, 'chartA');
     const chartB = sanitizeChart(body.chartB, 'chartB');
     messages = singleQuestion(body.question, TASK);
@@ -55,8 +58,11 @@ export async function POST(req: Request): Promise<Response> {
     return jsonError(400, '请求无法处理');
   }
 
-  const resolved = resolveProvider();
-  if (!resolved.ok) {
+  if (!choice.ok && choice.user) {
+    return textAsDeltaStream(userProviderInvalidText(choice.reason, locale), { headers: { 'x-ai-config': 'user-invalid' } });
+  }
+  if (!choice.ok) {
+    const resolved = choice;
     console.error('[api/heming] provider not configured:', resolved.reason.zh);
     return textAsDeltaStream(
       locale === 'zh'
@@ -72,14 +78,13 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   return deltaStreamResponse(
-    streamChat({
-      provider: resolved.provider,
+    streamChatWithFallback(choice.providers, {
       system,
       messages,
       maxTokens: 6000,
       temperature: 0.6,
       signal: req.signal,
     }),
-    { errorText: STREAM_ERROR[locale] },
+    { errorText: streamErrorText(choice, locale, STREAM_ERROR[locale]) },
   );
 }

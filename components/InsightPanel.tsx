@@ -5,6 +5,8 @@ import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
 import type { Locale } from '@/lib/i18n/terms';
 import { useI18n } from './LocaleProvider';
+import AiProviderSettings from './AiProviderSettings';
+import { withUserProvider } from '@/lib/ai/user-provider-client';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -483,7 +485,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chart, messages: apiMessages, locale }),
+        body: JSON.stringify(withUserProvider({ chart, messages: apiMessages, locale })),
       });
       if (res.status === 404) throw new Error('api-missing');
       if (!res.ok) throw new Error('请求失败');
@@ -580,6 +582,9 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
               </button>
             );
           })}
+        </div>
+        <div className="flex justify-end mt-1.5">
+          <AiProviderSettings compact />
         </div>
       </div>
 

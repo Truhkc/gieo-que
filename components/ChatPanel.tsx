@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { useI18n } from './LocaleProvider';
+import { withUserProvider } from '@/lib/ai/user-provider-client';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -46,7 +47,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chart, messages: [...messages, userMsg], locale }),
+        body: JSON.stringify(withUserProvider({ chart, messages: [...messages, userMsg], locale })),
       });
 
       if (res.status === 404) throw new Error('api-missing');

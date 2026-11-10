@@ -7,6 +7,8 @@ import { generateChart as buildChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
 import { useTheme } from '@/components/ThemeProvider';
 import { useI18n } from '@/components/LocaleProvider';
+import AiProviderSettings from '@/components/AiProviderSettings';
+import { withUserProvider } from '@/lib/ai/user-provider-client';
 
 // ─── AiContent 渲染器（与 InsightPanel 一致）────────────────
 function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
@@ -113,7 +115,7 @@ export default function HemingPage() {
       const res = await fetch('/api/heming', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chartA: cA, chartB: cB, question: q ?? undefined, locale }),
+        body: JSON.stringify(withUserProvider({ chartA: cA, chartB: cB, question: q ?? undefined, locale })),
       });
       if (res.status === 404) { setApiMissing(true); throw new Error('api-missing'); }
       if (!res.ok || !res.body) throw new Error();
@@ -239,6 +241,7 @@ export default function HemingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: (analysis || analyzing) ? '20px' : '24px' }}>
             <span style={{ color: 'var(--ac)', opacity: 0.6 }}>◉</span>
             <span style={{ fontSize: '11px', letterSpacing: '0.3em', color: 'var(--tx-3)' }}>合盘分析 · HEMING</span>
+            <span style={{ marginLeft: 'auto' }}><AiProviderSettings compact /></span>
           </div>
 
           {/* 状态分支 */}

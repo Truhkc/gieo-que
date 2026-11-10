@@ -20,6 +20,11 @@ export interface AiProvider {
   baseUrl: string;
   apiKey: string;
   model: string;
+  /**
+   * Endpoint do người xem tự nhập (lib/ai/user-provider.ts). Không theo redirect,
+   * để một URL công khai không thể chuyển hướng request vào mạng nội bộ.
+   */
+  untrusted?: boolean;
 }
 
 interface Preset {
@@ -96,7 +101,92 @@ function env(name: string): string {
 
 /** 读环境变量决定用哪家模型。缺配置时返回能直接给开发者看的原因。 */
 export function resolveProvider(): ProviderResult {
-  const id = env('AI_PROVIDER') || 'deepseek';
+  return resolvePreset(env('AI_PROVIDER') || 'deepseek');
+}
+
+/** Tên trong AI_PROVIDERS → tiền tố biến môi trường: "my-gemini" → AI_MY_GEMINI_ */
+function envPrefix(id: string): string {
+  return `AI_${id.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}_`;
+}
+
+/**
+ * Một mục tự đặt tên trong AI_PROVIDERS (không trùng tên có sẵn):
+ *   AI_<TÊN>_KIND      openai | anthropic   (mặc định openai)
+ *   AI_<TÊN>_BASE_URL  bắt buộc
+ *   AI_<TÊN>_API_KEY   bắt buộc
+ *   AI_<TÊN>_MODEL     bắt buộc
+ */
+function resolveNamed(id: string): ProviderResult {
+  const p = envPrefix(id);
+  const kindRaw = env(`${p}KIND`) || 'openai';
+  const missing = (what: string): ProviderResult => ({
+    ok: false,
+    reason: {
+      zh: `AI_PROVIDERS 里的「${id}」缺少 ${p}${what}。`,
+      vi: `Mục «${id}» trong AI_PROVIDERS còn thiếu ${p}${what}.`,
+    },
+  });
+  if (kindRaw !== 'openai' && kindRaw !== 'anthropic') {
+    return {
+      ok: false,
+      reason: {
+        zh: `${p}KIND 只能是 openai 或 anthropic，现在是「${kindRaw}」。`,
+        vi: `${p}KIND chỉ nhận openai hoặc anthropic, đang là «${kindRaw}».`,
+      },
+    };
+  }
+  const baseUrl = env(`${p}BASE_URL`).replace(/\/+$/, '');
+  const apiKey = env(`${p}API_KEY`);
+  const model = env(`${p}MODEL`);
+  if (!apiKey) return missing('API_KEY');
+  if (!baseUrl) return missing('BASE_URL');
+  if (!model) return missing('MODEL');
+  return { ok: true, provider: { id, kind: kindRaw, baseUrl, apiKey, model } };
+}
+
+export type ProvidersResult =
+  | { ok: true; providers: AiProvider[] }
+  | { ok: false; reason: ConfigReason };
+
+/**
+ * Danh sách nhà cung cấp theo thứ tự ưu tiên.
+ *
+ * Có AI_PROVIDERS (ví dụ `anthropic,gemini,deepseek`): lần lượt thử từng cái,
+ * cái trước lỗi thì chuyển sang cái sau (xem streamChatWithFallback). Tên có sẵn
+ * (deepseek / anthropic / openai / mimo / custom) dùng đúng biến như cũ; tên khác
+ * đọc nhóm AI_<TÊN>_*. Mục nào thiếu biến thì bỏ qua, chỉ báo lỗi khi không còn mục nào.
+ *
+ * Không có AI_PROVIDERS: giữ nguyên hành vi cũ, chỉ dùng một AI_PROVIDER.
+ */
+export function resolveProviders(): ProvidersResult {
+  const list = env('AI_PROVIDERS');
+  if (!list) {
+    const one = resolveProvider();
+    return one.ok ? { ok: true, providers: [one.provider] } : one;
+  }
+
+  const ids = [...new Set(list.split(',').map(s => s.trim()).filter(Boolean))];
+  const providers: AiProvider[] = [];
+  const problems: ConfigReason[] = [];
+  for (const id of ids) {
+    const r = PRESETS[id] ? resolvePreset(id) : resolveNamed(id);
+    if (r.ok) providers.push(r.provider);
+    else problems.push(r.reason);
+  }
+  if (problems.length > 0) {
+    console.error('[ai] AI_PROVIDERS entries skipped:', problems.map(p => p.zh).join(' / '));
+  }
+  if (providers.length > 0) return { ok: true, providers };
+  return {
+    ok: false,
+    reason: {
+      zh: `AI_PROVIDERS="${list}" 里没有一项配置完整：${problems.map(p => p.zh).join(' ')}`,
+      vi: `AI_PROVIDERS="${list}" không có mục nào khai báo đủ: ${problems.map(p => p.vi).join(' ')}`,
+    },
+  };
+}
+
+function resolvePreset(id: string): ProviderResult {
   const preset = PRESETS[id] ?? PRESETS.custom;
 
   const apiKey = env(preset.keyEnv);
@@ -163,10 +253,13 @@ export async function* streamChat(opts: StreamChatOptions): AsyncGenerator<strin
   const maxTokens = opts.maxTokens ?? 4096;
   const temperature = opts.temperature ?? 0.7;
 
+  const redirect: RequestRedirect = provider.untrusted ? 'error' : 'follow';
+
   if (provider.kind === 'anthropic') {
     const res = await fetch(`${provider.baseUrl}/v1/messages`, {
       method: 'POST',
       signal,
+      redirect,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': provider.apiKey,
@@ -202,6 +295,7 @@ export async function* streamChat(opts: StreamChatOptions): AsyncGenerator<strin
   const res = await fetch(`${provider.baseUrl}/chat/completions`, {
     method: 'POST',
     signal,
+    redirect,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${provider.apiKey}`,
@@ -231,4 +325,34 @@ export async function* streamChat(opts: StreamChatOptions): AsyncGenerator<strin
     const piece = evt.choices?.[0]?.delta?.content;
     if (piece) yield piece;
   }
+}
+
+/**
+ * Thử lần lượt từng nhà cung cấp. Chỉ chuyển sang cái sau khi cái trước hỏng
+ * **trước chữ đầu tiên** (sai key, hết credit, 5xx, mạng lỗi). Đã phát ra chữ rồi
+ * mà đứt giữa chừng thì không đổi nữa — ghép hai model vào một bài sẽ lủng củng —
+ * lỗi được ném lên để route báo cho người đọc.
+ */
+export async function* streamChatWithFallback(
+  providers: AiProvider[],
+  opts: Omit<StreamChatOptions, 'provider'>,
+): AsyncGenerator<string> {
+  let lastError: unknown = new Error('no AI provider configured');
+  for (const provider of providers) {
+    let started = false;
+    try {
+      for await (const piece of streamChat({ ...opts, provider })) {
+        started = true;
+        yield piece;
+      }
+      return;
+    } catch (err) {
+      if (started || opts.signal?.aborted) throw err;
+      lastError = err;
+      if (providers.length > 1) {
+        console.error(`[ai] ${provider.id} (${provider.model}) failed before first token, trying next:`, err);
+      }
+    }
+  }
+  throw lastError;
 }

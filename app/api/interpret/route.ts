@@ -13,7 +13,8 @@
  */
 import { buildInterpretSystem } from '@/lib/ai/prompts';
 import { selectKnowledge } from '@/lib/ai/knowledge';
-import { resolveProvider, streamChat, type ChatMessage } from '@/lib/ai/provider';
+import { streamChatWithFallback, type ChatMessage } from '@/lib/ai/provider';
+import { chooseProviders, streamErrorText, userProviderInvalidText, type AiChoice } from '@/lib/ai/choose-provider';
 import { deltaStreamResponse, textAsDeltaStream } from '@/lib/ai/sse';
 import { MessageInputError, normalizeMessages } from '@/lib/ai/messages';
 import { HttpError, jsonError, rateLimitGuard, readJsonBody, readLocale } from '@/lib/ai/http';
@@ -39,10 +40,12 @@ export async function POST(req: Request): Promise<Response> {
   let system: string;
   let messages: ChatMessage[];
   let locale: 'vi' | 'zh' = 'vi';
+  let choice: AiChoice;
 
   try {
     const body = await readJsonBody(req);
     locale = readLocale(body);
+    choice = await chooseProviders(body);
     const chart = sanitizeChart(body.chart);
     messages = normalizeMessages(body.messages);
     // 按最后一问挑重点宫位（问婚姻就多带夫妻宫的原话），再从倪师原话库里检索依据
@@ -59,8 +62,11 @@ export async function POST(req: Request): Promise<Response> {
     return jsonError(400, '请求无法处理');
   }
 
-  const resolved = resolveProvider();
-  if (!resolved.ok) {
+  if (!choice.ok && choice.user) {
+    return textAsDeltaStream(userProviderInvalidText(choice.reason, locale), { headers: { 'x-ai-config': 'user-invalid' } });
+  }
+  if (!choice.ok) {
+    const resolved = choice;
     console.error('[api/interpret] provider not configured:', resolved.reason.zh);
     return textAsDeltaStream(
       locale === 'zh'
@@ -68,19 +74,20 @@ export async function POST(req: Request): Promise<Response> {
           '排盘、命盘展示、古籍阅读都不需要 API Key，现在就能用；' +
           '只有这一栏的 AI 解读需要你在 `.env.local` 里配好模型。\n\n' +
           '可选档位：`AI_PROVIDER=deepseek` / `anthropic` / `openai` / `mimo` / `custom`，' +
-          '每档需要的变量见仓库根目录的 `.env.example`。'
+          '每档需要的变量见仓库根目录的 `.env.example`。\n\n' +
+          '也可以点「API 设置」填入你自己的 API Key。'
         : `**【Chưa cấu hình AI】**\n\n${resolved.reason.vi}\n\n` +
           'Lập lá số, xem bàn 12 cung và đọc cổ tịch đều không cần API Key — dùng được ngay. ' +
           'Chỉ riêng ô giải đoán này cần bạn khai báo mô hình trong `.env.local`.\n\n' +
           'Các lựa chọn: `AI_PROVIDER=deepseek` / `anthropic` / `openai` / `mimo` / `custom`. ' +
-          'Biến cần cho từng loại xem ở `.env.example` tại thư mục gốc.',
+          'Biến cần cho từng loại xem ở `.env.example` tại thư mục gốc.\n\n' +
+          'Hoặc bấm «Cài đặt API» để dùng API key của riêng bạn.',
       { headers: { 'x-ai-config': 'missing' } },
     );
   }
 
   return deltaStreamResponse(
-    streamChat({
-      provider: resolved.provider,
+    streamChatWithFallback(choice.providers, {
       system,
       messages,
       maxTokens: 4096,
@@ -88,6 +95,6 @@ export async function POST(req: Request): Promise<Response> {
       // 用户关掉页面时，把中断传给上游，别继续烧 token
       signal: req.signal,
     }),
-    { errorText: STREAM_ERROR[locale] },
+    { errorText: streamErrorText(choice, locale, STREAM_ERROR[locale]) },
   );
 }

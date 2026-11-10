@@ -114,6 +114,31 @@ export const UI = {
 
   // ── Khung giải đoán ──────────────────────────────────────
   'insight.header': { vi: 'Giải đoán', zh: '命理解读' },
+
+  // ── API riêng của người xem ──────────────────────────────
+  'aiSettings.button': { vi: 'Cài đặt API', zh: 'API 设置' },
+  'aiSettings.buttonActive': { vi: 'Đang dùng API riêng', zh: '使用自定义 API' },
+  'aiSettings.title': { vi: 'Dùng API key của riêng bạn', zh: '使用你自己的 API Key' },
+  'aiSettings.intro': {
+    vi: 'Không bắt buộc. Nếu bạn có API key (ShopAIKey, OpenAI, Gemini, DeepSeek…), điền vào đây để phần giải đoán chạy bằng key của bạn thay cho cấu hình mặc định của trang.',
+    zh: '可选。如果你有自己的 API Key（OpenAI、Gemini、DeepSeek 等），填在这里，解读就用你的 Key，而不是本站默认配置。',
+  },
+  'aiSettings.preset': { vi: 'Nhà cung cấp (điền sẵn)', zh: '服务商（自动填写）' },
+  'aiSettings.kind': { vi: 'Kiểu API', zh: '接口类型' },
+  'aiSettings.show': { vi: 'Hiện', zh: '显示' },
+  'aiSettings.hide': { vi: 'Ẩn', zh: '隐藏' },
+  'aiSettings.privacy': {
+    vi: 'Key chỉ lưu trong trình duyệt này. Mỗi lần giải đoán, key được gửi qua máy chủ của trang để gọi API rồi bỏ đi — không lưu, không ghi log. Đừng nhập key trên máy dùng chung.',
+    zh: 'Key 只保存在本浏览器。每次解读时经本站服务器转发调用后即丢弃，不保存、不记日志。请勿在公用电脑上填写。',
+  },
+  'aiSettings.save': { vi: 'Lưu', zh: '保存' },
+  'aiSettings.cancel': { vi: 'Huỷ', zh: '取消' },
+  'aiSettings.clear': { vi: 'Xoá API riêng', zh: '清除自定义 API' },
+  'aiSettings.saved': { vi: 'Đã lưu.', zh: '已保存。' },
+  'aiSettings.storageBlocked': {
+    vi: 'Trình duyệt đang chặn lưu trữ (chế độ ẩn danh?), không lưu được.',
+    zh: '浏览器禁止了本地存储（无痕模式？），无法保存。',
+  },
   'insight.placeholder': {
     vi: 'Hỏi tiếp, ví dụ: năm nay có nên đổi việc không?',
     zh: '继续追问，如：今年适合换工作吗？',
