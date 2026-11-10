@@ -15,7 +15,7 @@ import { buildInterpKey, interpObjectPath, isInterpTopic, type InterpDayPack } f
 import { signS3Request } from '../../lib/storage/r2-sigv4';
 
 async function main(): Promise<void> {
-  const { lookupInterp, clearInterpCache, loaderFromEnv } = await import('../../lib/ai/interp-dataset');
+  const { lookupInterp, lookupInterpWithin, clearInterpCache, sourceFromEnv, scanDayLines, scanZstdForDay } = await import('../../lib/ai/interp-dataset');
   const { buildInterpretSystem } = await import('../../lib/ai/prompts');
 
   // ── 1. 取键 ────────────────────────────────────────────────
@@ -102,9 +102,10 @@ async function main(): Promise<void> {
   assert.equal(calls, 0);
 
   // 没配数据源
-  const none = await lookupInterp(birth, 'love', { loader: null });
+  const none = await lookupInterp(birth, 'love', { source: null });
   assert.equal(!none.ok && none.reason, 'not-configured');
-  assert.equal(loaderFromEnv({} as NodeJS.ProcessEnv), null);
+  assert.equal(sourceFromEnv({ ZIWEI_INTERP_SOURCE: 'off' } as unknown as NodeJS.ProcessEnv), null, '关掉默认源');
+  assert.equal(typeof sourceFromEnv({} as NodeJS.ProcessEnv), 'function', '什么都不配时默认读 GitHub release');
 
   // 数据源报错、对象损坏、对象日期对不上 → error，且不抛出、不缓存
   clearInterpCache();
@@ -123,6 +124,59 @@ async function main(): Promise<void> {
   }
   assert.ok((await lookupInterp(birth, 'love', { loader })).ok, '出错之后恢复正常');
 
+  // ── 3b. 上游 JSON Lines 流式扫描（GitHub release 源）────────────
+  const row = (date: string, h: number, g: string) =>
+    JSON.stringify({ k: `${date}-${h}-${g}`, y: 1990, m: 5, d: +date.slice(8), h, g, ms: '紫微', t: {}, c: { love: `${date}/${h}/${g}` } });
+  const days = ['1990-05-08', '1990-05-09', '1990-05-10'];
+  const jsonl = Buffer.from(days.flatMap(d =>
+    Array.from({ length: 12 }, (_, h) => ['male', 'female'].map(g => row(d, h, g))).flat()).join('\n') + '\n');
+  async function* chunked(buf: Buffer, size: number) {
+    for (let i = 0; i < buf.length; i += size) yield buf.subarray(i, i + size);
+  }
+  // 切成各种大小，确保键被切在 chunk 边界、行被切成几段时都能找到
+  for (const size of [1, 7, 64, 300, 4096, jsonl.length]) {
+    for (const d of days) {
+      const got = await scanDayLines(chunked(jsonl, size), d);
+      assert.ok(got, `${d} @chunk ${size}`);
+      assert.equal(Object.keys(got).length, 24, `${d} @chunk ${size} 应收齐 24 张`);
+      assert.equal(got['3-male'].c.love, `${d}/3/male`);
+      assert.equal(got['11-female'].ms, '紫微');
+    }
+    assert.equal(await scanDayLines(chunked(jsonl, size), '1990-05-11'), null, '不存在的日期');
+  }
+  // 末行没有换行符
+  const noTrailing = await scanDayLines(chunked(jsonl.subarray(0, jsonl.length - 1), 50), '1990-05-10');
+  assert.equal(Object.keys(noTrailing ?? {}).length, 24);
+  // 找到这一天之后就停，不读后面的
+  let pulled = 0;
+  async function* counting() { for await (const c of chunked(jsonl, 100)) { pulled++; yield c; } }
+  await scanDayLines(counting(), '1990-05-08');
+  assert.ok(pulled < Math.ceil(jsonl.length / 100) / 2, '扫完当天即停');
+
+  // 走一遍真的 zstd 解压（Node ≥ 22.15 才有 zstd；更老的 Node 跳过）
+  const zc = (await import('node:zlib')) as unknown as { zstdCompressSync?: (b: Buffer) => Buffer };
+  if (zc.zstdCompressSync) {
+    const { Readable } = await import('node:stream');
+    const compressed = zc.zstdCompressSync(jsonl);
+    const viaZstd = await scanZstdForDay(Readable.from([compressed.subarray(0, 100), compressed.subarray(100)]), '1990-05-09');
+    assert.equal(viaZstd?.['5-female'].c.love, '1990-05-09/5/female');
+    // 用 DaySource 走完整查询
+    clearInterpCache();
+    const viaSource = await lookupInterp(birth, 'love', {
+      source: async () => scanZstdForDay(Readable.from([compressed]), '1990-05-09'),
+    });
+    assert.ok(viaSource.ok && viaSource.text === '1990-05-09/3/male');
+  }
+
+  // ── 3c. 解读接口的等待上限：慢源先回 timeout，后台读完进缓存，下一次命中 ──
+  clearInterpCache();
+  const slow = async () => { await new Promise(r => setTimeout(r, 200)); return pack.charts; };
+  const first = await lookupInterpWithin(birth, 'love', 30, { source: slow });
+  assert.equal(!first.ok && first.reason, 'timeout');
+  await new Promise(r => setTimeout(r, 300));
+  const second = await lookupInterpWithin(birth, 'love', 30, { source: async () => { throw new Error('不该再读'); } });
+  assert.ok(second.ok, '超时那次的读取在后台完成并进了缓存');
+
   // ── 4. 提示词：有原文时作为第一依据放进去，没有就不出现 ────────
   const withData = buildInterpretSystem('（命盘）', '（知识库）', { label: '感情婚姻', text: 'DATASET-BODY' });
   assert.ok(withData.includes('主要依据'));
@@ -130,7 +184,7 @@ async function main(): Promise<void> {
   assert.ok(withData.indexOf('DATASET-BODY') < withData.indexOf('（知识库）'), '原文排在知识库前面');
   assert.ok(!buildInterpretSystem('（命盘）', '（知识库）').includes('〔原文开始〕'));
 
-  // ── 5. 可选：真数据 ────────────────────────────────────────
+  // ── 5. 可选：真数据（ZIWEI_INTERP_DIR=pack 产物目录；ZIWEI_INTERP_NET=1 直连 GitHub release）──
   const dir = process.env.ZIWEI_INTERP_DIR;
   if (dir && existsSync(join(dir, 'v4/1990/1990-05-09.json.br'))) {
     clearInterpCache();
@@ -138,6 +192,13 @@ async function main(): Promise<void> {
     assert.ok(real.ok, '真数据 1990-05-09-3-male 应能查到');
     assert.ok(real.text.includes('【感情总览】'));
     console.log(`  （真数据：${real.key.key} love ${real.text.length} 字）`);
+  }
+  if (process.env.ZIWEI_INTERP_NET === '1') {
+    clearInterpCache();
+    const t0 = Date.now();
+    const net = await lookupInterp(birth, 'love', { source: sourceFromEnv({} as NodeJS.ProcessEnv) });
+    assert.ok(net.ok && net.text.includes('【感情总览】'), 'GitHub release 应能查到 1990-05-09-3-male');
+    console.log(`  （GitHub release：${net.key.key} love ${net.text.length} 字，${Date.now() - t0}ms）`);
   }
 
   console.log('interp-dataset: OK');

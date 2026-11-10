@@ -109,11 +109,27 @@ export function buildInterpKey(b: {
   };
 }
 
-/** 页面与提示词共用的署名文字 */
+/**
+ * 署名（CC BY 4.0 唯一的要求）。citation 是上游 README「许可」一节与 DATASET-LICENSE
+ * 指定的引用写法，原样照抄，页面上每条依据数据集的解读下方都显示。
+ */
 export const DATASET_ATTRIBUTION = {
-  name: '紫微斗数开源解读数据集 v4.0（13 维）',
-  author: 'Renhuai123/ziwei-doushu',
+  name: '紫微斗数开源解读数据集 v4.0（674,976 张命盘 × 13 维）',
+  author: '王多鱼AI',
+  repo: 'Renhuai123/ziwei-doushu',
+  sourceUrl: 'https://github.com/Renhuai123/ziwei-doushu',
   url: 'https://github.com/Renhuai123/ziwei-doushu/releases/tag/v4.0-13d',
   license: 'CC BY 4.0',
   licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+  citation: '本项目使用了 紫微斗数开源解读数据集 v4.0（674,976 张命盘 × 13 维）\n' +
+    '来源：https://github.com/Renhuai123/ziwei-doushu\n作者：王多鱼AI',
+} as const;
+
+/** 解读里引用的倪海厦《天纪》原话的来源（lib/ai/knowledge.ts 检索的语料，以及数据集正文里的引文） */
+export const TIANJI_ATTRIBUTION = {
+  name: '倪海厦《天纪》紫微斗数原话库',
+  repo: 'Renhuai123/nihai-tianji-corpus',
+  url: 'https://github.com/Renhuai123/nihai-tianji-corpus',
+  license: 'CC BY-NC-SA 4.0',
+  licenseUrl: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
 } as const;

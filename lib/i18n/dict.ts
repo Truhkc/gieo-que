@@ -136,12 +136,16 @@ export const UI = {
   },
   'insight.dataset.hide': { vi: 'Ẩn nguyên văn', zh: '收起原文' },
   'insight.dataset.badge': {
-    vi: 'Dựa trên bộ dữ liệu giải đoán 13 chiều · {key}',
-    zh: '依据 13 维解读数据集 · {key}',
+    vi: 'Phần giải đoán này chuyển ngữ từ bộ dữ liệu giải đoán 13 chiều (lá số {key}). Nguồn:',
+    zh: '本段解读依据 13 维解读数据集（盘号 {key}）转述。来源：',
   },
   'insight.dataset.credit': {
-    vi: 'Các chủ đề giải đoán dựa trên “紫微斗数开源解读数据集 v4.0” của {author}, giấy phép CC BY 4.0; AI chỉ chuyển ngữ và sắp xếp lại. Lời thầy Nghê Hải Hạ được trích trong đó thuộc bản quyền của chủ sở hữu.',
-    zh: '各主题解读依据 {author} 的「紫微斗数开源解读数据集 v4.0」（CC BY 4.0），AI 仅做转述与编排；其中引用的倪海厦原话著作权归原权利人。',
+    vi: 'Các chủ đề giải đoán dựa trên “紫微斗数开源解读数据集 v4.0” của {author} ({repo}); AI chỉ chuyển ngữ và sắp xếp lại.',
+    zh: '各主题解读依据 {author}（{repo}）的「紫微斗数开源解读数据集 v4.0」，AI 仅做转述与编排。',
+  },
+  'insight.tianji.credit': {
+    vi: 'Lời thầy Nghê Hải Hạ được trích theo kho 《天纪》 {repo} — chỉ dùng phi thương mại; bản quyền nội dung gốc thuộc chủ sở hữu.',
+    zh: '所引倪海厦原话出自《天纪》语料库 {repo}，仅限非商业使用，原课程著作权归原权利人。',
   },
 
   // ── Trang chủ ────────────────────────────────────────────

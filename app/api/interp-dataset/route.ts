@@ -12,7 +12,8 @@
  *   400 { ok: false, reason: 'invalid' }
  *
  * 查不到也回 200：这是「没有原文可看」，不是请求出错，前端照常显示 AI 解读。
- * 命中时允许 CDN 缓存一天——同一个键的内容是确定的，换数据集版本时 key 前缀会跟着换。
+ * 命中时允许 CDN 缓存 30 天——同一个键的内容是确定的（数据集版本写死在 INTERP_DATASET.tag）。
+ * 默认数据源是直接流式读 GitHub release（见 lib/ai/interp-dataset.ts），CDN 命中后就不再读。
  */
 import { lookupInterp } from '@/lib/ai/interp-dataset';
 import { rateLimitGuard } from '@/lib/ai/http';
@@ -47,7 +48,7 @@ export async function GET(req: Request): Promise<Response> {
   if (result.ok) {
     return json(200, {
       ok: true, key: result.key.key, topic, mainStar: result.mainStar, text: result.text,
-    }, 'public, max-age=3600, s-maxage=86400');
+    }, 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=86400');
   }
   return json(result.reason === 'invalid' ? 400 : 200, { ok: false, reason: result.reason }, 'no-store');
 }

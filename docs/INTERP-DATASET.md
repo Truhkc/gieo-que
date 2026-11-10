@@ -5,7 +5,18 @@
 （[Renhuai123/ziwei-doushu release `v4.0-13d`](https://github.com/Renhuai123/ziwei-doushu/releases/tag/v4.0-13d)，CC BY 4.0）
 里本盘对应维度的确定性解读原文，把它作为提示词的第一依据交给模型转述成越南语（或用户提问的语言），
 出处照抄；倪师原话检索（`lib/ai/knowledge.ts`）照旧附在后面补足。
-查不到（1950–2026 以外、数据源没配、对象缺失、网络出错）时自动退回原来的纯 AI 流程。
+查不到（1950–2026 以外、对象缺失、网络出错）时自动退回原来的纯 AI 流程。
+
+**默认不需要任何存储账号**：服务端直接从上游 GitHub release 下载本年的 `year-YYYY.jsonl.zst`（约 2MB），
+用 Node 24 自带的 zstd 流式解压，扫到这一天的 24 行就停，整天放进进程内缓存；
+`/api/interp-dataset` 命中后 CDN 缓存 30 天。年文件整份留在内存（最多 4 年），同一年的其他日子不再下载。
+实测（本机 next start）：解压扫描 1–2.4 秒（12 月 31 日最坏，要解压约 700MB），峰值内存约 240MB；
+GitHub 下载时快时慢，首次读某一年 3–9 秒，偶尔超过 15 秒。所以 `/api/interpret` 最多等 10 秒，
+超时就先按 AI 流程回答（响应头 `x-interp-dataset: timeout`），后台读完进缓存，下一个标签页就能命中。
+`package.json` 的 `engines` 因此固定为 Node 24.x。
+
+想更快、或不想依赖 GitHub 下载时，再用下面的 R2 方案（每次查盘 1 次 GET、约 146KB）。
+数据源优先级：`ZIWEI_INTERP_DIR` → R2 四个变量 → GitHub release（`ZIWEI_INTERP_SOURCE=off` 可关掉）。
 
 页面上每条依据数据集的解读下方有「Xem nguyên văn bộ dữ liệu」可展开中文原文，
 输入框上方常驻 CC BY 4.0 署名。
@@ -31,7 +42,7 @@
 已经是子时换日后的排盘日，`hour` 是 0–11 的时辰序号，正好对得上。
 所以用了真太阳时、子时换日的盘，查到的也是与这张盘同一个排盘日与时辰的解读。
 
-## 存储与成本
+## 可选：R2 存储与成本
 
 全量：28,124 天 × 24 张盘 = 674,976 张盘，打包后约 **3.9 GiB**（平均每天 145 KiB，
 brotli q9 / 16MB 窗口）。上游原始数据解压后 57 GB，所以没法打进 Vercel 包里。
@@ -47,7 +58,7 @@ brotli q9 / 16MB 窗口）。上游原始数据解压后 57 GB，所以没法打
 
 Vercel Blob 的 Hobby 档只有 1 GB 存储、每月 2,000 次上传，放不下。
 
-## 部署步骤
+## 可选：R2 部署步骤
 
 1. 打包（约 35 分钟，需要 Node ≥ 22.15，磁盘留 5 GB）：
    ```bash

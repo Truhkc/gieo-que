@@ -6,7 +6,7 @@ import type { TimeView } from './TimeNav';
 import type { Locale } from '@/lib/i18n/terms';
 import { useI18n } from './LocaleProvider';
 import { TOPIC_PALACE_NAME, type TopicKey } from '@/lib/ziwei/db-analysis';
-import { DATASET_ATTRIBUTION } from '@/lib/ziwei/interp-dataset';
+import { DATASET_ATTRIBUTION, TIANJI_ATTRIBUTION } from '@/lib/ziwei/interp-dataset';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -678,10 +678,23 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
                 <AiContent text={msg.content} streaming={loading && isLastMsg} />
                 {source && (
                   <div className="mt-2.5 pt-2" style={{ borderTop: '1px dashed var(--t-border)' }}>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>
-                        {t('insight.dataset.badge', { key: source.key })}
-                      </span>
+                    {/* Ghi nguồn đúng câu trích dẫn mà README / DATASET-LICENSE thượng nguồn yêu cầu */}
+                    <div className="text-[9px] leading-snug" style={{ color: 'var(--t-faint)' }}>
+                      <div>{t('insight.dataset.badge', { key: source.key })}</div>
+                      <div lang="zh">
+                        本项目使用了 {DATASET_ATTRIBUTION.name}
+                        {' · '}来源：
+                        <a href={DATASET_ATTRIBUTION.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                          {DATASET_ATTRIBUTION.sourceUrl}
+                        </a>
+                        {' · '}作者：{DATASET_ATTRIBUTION.author}
+                        {' · '}
+                        <a href={DATASET_ATTRIBUTION.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline underline-offset-2">
+                          {DATASET_ATTRIBUTION.license}
+                        </a>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end gap-2 mt-1">
                       <button
                         onClick={() => setOpenSource(openSource === i ? null : i)}
                         className="text-[9px] underline underline-offset-2"
@@ -710,11 +723,19 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
       {/* ── Ghi nguồn bộ dữ liệu (CC BY 4.0 bắt buộc ghi nguồn) ── */}
       <div className="flex-shrink-0 px-3 pt-1.5 text-[9px] leading-snug" style={{ color: 'var(--t-faint)' }}>
         <a href={DATASET_ATTRIBUTION.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
-          {t('insight.dataset.credit', { author: DATASET_ATTRIBUTION.author })}
+          {t('insight.dataset.credit', { author: DATASET_ATTRIBUTION.author, repo: DATASET_ATTRIBUTION.repo })}
         </a>
         {' '}
         <a href={DATASET_ATTRIBUTION.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline underline-offset-2">
-          CC BY 4.0
+          {DATASET_ATTRIBUTION.license}
+        </a>
+        {' · '}
+        <a href={TIANJI_ATTRIBUTION.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+          {t('insight.tianji.credit', { repo: TIANJI_ATTRIBUTION.repo })}
+        </a>
+        {' '}
+        <a href={TIANJI_ATTRIBUTION.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline underline-offset-2">
+          {TIANJI_ATTRIBUTION.license}
         </a>
       </div>
 

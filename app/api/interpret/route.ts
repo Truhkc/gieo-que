@@ -9,7 +9,7 @@
  * 可选字段 topic（13 维之一，见 lib/ziwei/interp-dataset.ts）：带上时先去上游「13 维解读数据集 v4.0」
  * 查本盘这一维的确定性解读原文，作为提示词里的第一依据，模型负责转述成用户的语言并保留出处；
  * 查不到（1950–2026 以外、数据源没配、对象缺失）就照旧只靠倪师原话检索。
- * 命中情况写在响应头 `x-interp-dataset: hit | <原因>`。
+ * 命中情况写在响应头 `x-interp-dataset: hit | <原因>`（含 timeout：等了 10 秒没读完）。
  *
  * 一个取舍：AI 没配好时这里返回 200 + 一帧说明文字，而不是 503。
  * 前端只对 404 有专门分支，其他非 2xx 统一显示「解读失败，请稍后重试」——
@@ -24,7 +24,7 @@ import { MessageInputError, normalizeMessages } from '@/lib/ai/messages';
 import { HttpError, jsonError, rateLimitGuard, readJsonBody, readLocale } from '@/lib/ai/http';
 import { ChartInputError, sanitizeChart } from '@/lib/ziwei/chart-input';
 import { buildChartContext } from '@/lib/ziwei/chart-context';
-import { lookupInterp } from '@/lib/ai/interp-dataset';
+import { lookupInterpWithin } from '@/lib/ai/interp-dataset';
 import { isInterpTopic } from '@/lib/ziwei/interp-dataset';
 import { TOPIC_LABEL } from '@/lib/ziwei/db-analysis';
 
@@ -58,7 +58,8 @@ export async function POST(req: Request): Promise<Response> {
     const question = [...messages].reverse().find(m => m.role === 'user')?.content;
     let dataset: { label: string; text: string } | undefined;
     if (isInterpTopic(body.topic)) {
-      const hit = await lookupInterp(chart.birthInfo, body.topic);
+      // 数据集默认从 GitHub release 现读，偶尔很慢：最多等 10 秒，晚了就先按 AI 流程答
+      const hit = await lookupInterpWithin(chart.birthInfo, body.topic, 10_000);
       datasetStatus = hit.ok ? 'hit' : hit.reason;
       if (hit.ok) dataset = { label: TOPIC_LABEL[body.topic], text: hit.text };
     }
