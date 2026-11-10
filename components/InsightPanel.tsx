@@ -5,6 +5,8 @@ import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
 import type { Locale } from '@/lib/i18n/terms';
 import { useI18n } from './LocaleProvider';
+import { TOPIC_PALACE_NAME, type TopicKey } from '@/lib/ziwei/db-analysis';
+import { DATASET_ATTRIBUTION, TIANJI_ATTRIBUTION } from '@/lib/ziwei/interp-dataset';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -23,6 +25,19 @@ interface InsightPanelProps {
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
 }
+
+/** Bộ dữ liệu 13 chiều: nguyên văn của một chủ đề, gắn với câu hỏi đã kích hoạt nó */
+interface DatasetSource {
+  key: string;
+  text: string;
+}
+
+/** Bấm vào cung nào thì lấy chủ đề tương ứng trong bộ dữ liệu (命宫 → tổng quan) */
+const PALACE_TOPIC: Record<string, TopicKey> = Object.fromEntries(
+  (Object.entries(TOPIC_PALACE_NAME) as [TopicKey, string][])
+    .filter(([k]) => k !== 'personality')
+    .map(([k, palace]) => [palace, k]),
+);
 
 const TOPICS = [
   { key: 'overview',    labelKey: 'insight.topic.overview' },
@@ -406,6 +421,13 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTopic, setActiveTopic] = useState<string>('overview');
+  // Chủ đề đang bàn: gửi kèm mọi lượt hỏi (kể cả hỏi tiếp) để server lấy đúng nguyên văn bộ dữ liệu
+  const topicRef = useRef<TopicKey>('overview');
+  // Câu hỏi do tab / cung tự gửi (không phải người dùng gõ): khi chưa có AI, server trả thẳng bộ dữ liệu
+  const autoRef = useRef(true);
+  // Nguyên văn bộ dữ liệu, theo chỉ số của tin nhắn user đã kích hoạt nó
+  const [sources, setSources] = useState<Record<number, DatasetSource>>({});
+  const [openSource, setOpenSource] = useState<number | null>(null);
   const messagesRef = useRef<Message[]>([]); // always-current copy for closures
   const loadingRef = useRef(false);
   const autoLoaded = useRef(false);
@@ -428,7 +450,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   useEffect(() => {
     if (autoLoaded.current) return;
     autoLoaded.current = true;
-    sendMessage(TOPIC_PROMPTS[locale].overview, true);
+    sendMessage(TOPIC_PROMPTS[locale].overview, true, 'overview');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Inject palace analysis when palace selected
@@ -448,7 +470,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
       stars: starDesc,
     });
 
-    sendMessage(prompt, true);
+    sendMessage(prompt, true, PALACE_TOPIC[selectedPalace.name]);
   }, [selectedPalace]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 注入四化飞化分析
@@ -483,7 +505,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chart, messages: apiMessages, locale }),
+        body: JSON.stringify({ chart, messages: apiMessages, locale, topic: topicRef.current, auto: autoRef.current }),
       });
       if (res.status === 404) throw new Error('api-missing');
       if (!res.ok) throw new Error('请求失败');
@@ -529,10 +551,30 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
     }
   };
 
-  const sendMessage = (text: string, hidden = false) => {
+  /** Lấy nguyên văn tiếng Trung để người dùng đối chiếu; không có thì thôi, không báo lỗi */
+  const fetchSource = async (topic: TopicKey, msgIndex: number) => {
+    const b = chart.birthInfo;
+    const q = new URLSearchParams({
+      y: String(b.year), m: String(b.month), d: String(b.day), h: String(b.hour), g: b.gender, topic,
+    });
+    try {
+      const res = await fetch(`/api/interp-dataset?${q}`);
+      const data = await res.json() as { ok: boolean; key?: string; text?: string };
+      if (data.ok && data.key && data.text) {
+        setSources(prev => ({ ...prev, [msgIndex]: { key: data.key!, text: data.text! } }));
+      }
+    } catch { /* bộ dữ liệu là phần phụ */ }
+  };
+
+  const sendMessage = (text: string, hidden = false, topic?: TopicKey) => {
     if (!text.trim() || loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
+    autoRef.current = hidden;
+    if (topic) {
+      topicRef.current = topic;
+      fetchSource(topic, messagesRef.current.length);
+    }
 
     const userMsg: Message = { role: 'user', content: text, hidden };
     // Capture current messages synchronously via ref (avoids stale closure)
@@ -549,7 +591,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   const handleTopicClick = (topicKey: string) => {
     if (loadingRef.current) return;
     setActiveTopic(topicKey);
-    sendMessage(TOPIC_PROMPTS[locale][topicKey], true);
+    sendMessage(TOPIC_PROMPTS[locale][topicKey], true, topicKey as TopicKey);
   };
 
   const handleSend = () => {
@@ -622,6 +664,7 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
 
             // Assistant message
             const isLastMsg = i === messages.length - 1;
+            const source = sources[i - 1];
             return (
               <motion.div
                 key={i}
@@ -636,10 +679,67 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
                   {t('insight.header')}
                 </div>
                 <AiContent text={msg.content} streaming={loading && isLastMsg} />
+                {source && (
+                  <div className="mt-2.5 pt-2" style={{ borderTop: '1px dashed var(--t-border)' }}>
+                    {/* Ghi nguồn đúng câu trích dẫn mà README / DATASET-LICENSE thượng nguồn yêu cầu */}
+                    <div className="text-[9px] leading-snug" style={{ color: 'var(--t-faint)' }}>
+                      <div>{t('insight.dataset.badge', { key: source.key })}</div>
+                      <div lang="zh">
+                        本项目使用了 {DATASET_ATTRIBUTION.name}
+                        {' · '}来源：
+                        <a href={DATASET_ATTRIBUTION.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                          {DATASET_ATTRIBUTION.sourceUrl}
+                        </a>
+                        {' · '}作者：{DATASET_ATTRIBUTION.author}
+                        {' · '}
+                        <a href={DATASET_ATTRIBUTION.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline underline-offset-2">
+                          {DATASET_ATTRIBUTION.license}
+                        </a>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end gap-2 mt-1">
+                      <button
+                        onClick={() => setOpenSource(openSource === i ? null : i)}
+                        className="text-[9px] underline underline-offset-2"
+                        style={{ color: 'var(--t-gold)' }}
+                      >
+                        {openSource === i ? t('insight.dataset.hide') : t('insight.dataset.show')}
+                      </button>
+                    </div>
+                    {openSource === i && (
+                      <div
+                        lang="zh"
+                        className="mt-2 rounded-lg p-2.5 max-h-80 overflow-y-auto"
+                        style={{ background: 'var(--t-card)', border: '1px solid var(--t-border)' }}
+                      >
+                        <AiContent text={source.text} />
+                      </div>
+                    )}
+                  </div>
+                )}
               </motion.div>
             );
           })}
         </AnimatePresence>
+      </div>
+
+      {/* ── Ghi nguồn bộ dữ liệu (CC BY 4.0 bắt buộc ghi nguồn) ── */}
+      <div className="flex-shrink-0 px-3 pt-1.5 text-[9px] leading-snug" style={{ color: 'var(--t-faint)' }}>
+        <a href={DATASET_ATTRIBUTION.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+          {t('insight.dataset.credit', { author: DATASET_ATTRIBUTION.author, repo: DATASET_ATTRIBUTION.repo })}
+        </a>
+        {' '}
+        <a href={DATASET_ATTRIBUTION.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline underline-offset-2">
+          {DATASET_ATTRIBUTION.license}
+        </a>
+        {' · '}
+        <a href={TIANJI_ATTRIBUTION.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+          {t('insight.tianji.credit', { repo: TIANJI_ATTRIBUTION.repo })}
+        </a>
+        {' '}
+        <a href={TIANJI_ATTRIBUTION.licenseUrl} target="_blank" rel="noopener noreferrer license" className="underline underline-offset-2">
+          {TIANJI_ATTRIBUTION.license}
+        </a>
       </div>
 
       {/* ── Input ── */}

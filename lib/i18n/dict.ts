@@ -130,6 +130,23 @@ export const UI = {
     zh: '找不到 /api/interpret —— 本仓库已内置该接口，请确认 app/api/interpret/route.ts 存在并重启开发服务器。排盘本身不需要任何 API Key。',
   },
   'insight.err.failed': { vi: 'Giải đoán thất bại, vui lòng thử lại sau.', zh: '解读失败，请稍后重试。' },
+  'insight.dataset.show': {
+    vi: 'Xem nguyên văn bộ dữ liệu (tiếng Trung)',
+    zh: '查看数据集原文',
+  },
+  'insight.dataset.hide': { vi: 'Ẩn nguyên văn', zh: '收起原文' },
+  'insight.dataset.badge': {
+    vi: 'Phần giải đoán này chuyển ngữ từ bộ dữ liệu giải đoán 13 chiều (lá số {key}). Nguồn:',
+    zh: '本段解读依据 13 维解读数据集（盘号 {key}）转述。来源：',
+  },
+  'insight.dataset.credit': {
+    vi: 'Các chủ đề giải đoán dựa trên “紫微斗数开源解读数据集 v4.0” của {author} ({repo}); AI chỉ chuyển ngữ và sắp xếp lại.',
+    zh: '各主题解读依据 {author}（{repo}）的「紫微斗数开源解读数据集 v4.0」，AI 仅做转述与编排。',
+  },
+  'insight.tianji.credit': {
+    vi: 'Lời thầy Nghê Hải Hạ được trích theo kho 《天纪》 {repo} — chỉ dùng phi thương mại; bản quyền nội dung gốc thuộc chủ sở hữu.',
+    zh: '所引倪海厦原话出自《天纪》语料库 {repo}，仅限非商业使用，原课程著作权归原权利人。',
+  },
 
   // ── Trang chủ ────────────────────────────────────────────
   'home.niMethod': { vi: 'Phép lập lá số Nghê Hải Hạ', zh: '倪海厦排盘法' },
