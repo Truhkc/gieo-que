@@ -77,7 +77,7 @@ function renderPalaceLine(chart: ZiweiChart, p: Palace): string {
 }
 
 /** 三方四正 = 本宫 + 对宫 + 两个三合宫 */
-function sanfangSizheng(chart: ZiweiChart, branch: number): Palace[] {
+export function sanfangSizheng(chart: ZiweiChart, branch: number): Palace[] {
   const wanted = [branch, (branch + 4) % 12, (branch + 6) % 12, (branch + 8) % 12];
   return wanted
     .map(b => chart.palaces.find(p => p.branch === b))

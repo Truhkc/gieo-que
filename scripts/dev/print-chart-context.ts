@@ -45,7 +45,8 @@ async function main(): Promise<void> {
       console.log(buildHemingKnowledge(chart, other));
     }
   } else if (withPrompt) {
-    console.log(buildInterpretSystem(buildChartContext(chart)));
+    const { selectKnowledge } = await import('../../lib/ai/knowledge');
+    console.log(buildInterpretSystem(buildChartContext(chart), selectKnowledge([chart]).text));
   } else {
     console.log(buildChartContext(chart));
   }

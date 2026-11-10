@@ -12,6 +12,7 @@
  * 响应头，方便监控区分。
  */
 import { buildInterpretSystem } from '@/lib/ai/prompts';
+import { selectKnowledge } from '@/lib/ai/knowledge';
 import { resolveProvider, streamChat, type ChatMessage } from '@/lib/ai/provider';
 import { deltaStreamResponse, textAsDeltaStream } from '@/lib/ai/sse';
 import { MessageInputError, normalizeMessages } from '@/lib/ai/messages';
@@ -44,7 +45,12 @@ export async function POST(req: Request): Promise<Response> {
     locale = readLocale(body);
     const chart = sanitizeChart(body.chart);
     messages = normalizeMessages(body.messages);
-    system = buildInterpretSystem(buildChartContext(chart));
+    // 按最后一问挑重点宫位（问婚姻就多带夫妻宫的原话），再从倪师原话库里检索依据
+    const question = [...messages].reverse().find(m => m.role === 'user')?.content;
+    system = buildInterpretSystem(
+      buildChartContext(chart),
+      selectKnowledge([chart], { question }).text,
+    );
   } catch (err) {
     if (err instanceof HttpError) return jsonError(err.status, err.message);
     if (err instanceof ChartInputError) return jsonError(400, `命盘数据不合法：${err.message}`);
