@@ -12,3 +12,6 @@ node_modules
 iching_data.json
 CLAUDE.md
 .gemini/
+
+.vercel
+.env*

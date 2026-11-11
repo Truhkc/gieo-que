@@ -35,8 +35,9 @@ import { datasetFallbackText } from '@/lib/ai/dataset-fallback';
 // iztro / lunar-javascript 与 patterns.ts 的 'server-only' 都要求 Node 运行时
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-// 流式解读通常 30–60 秒。Vercel 免费档上限 60s，Pro 档可以调到 300。
-export const maxDuration = 60;
+// Tab chủ đề: tra bộ dữ liệu (tối đa 10 s) rồi model viết bài dài, đo trên production
+// vượt 60 s và bị cắt giữa câu. Vercel Hobby có Fluid compute (mặc định) cho tối đa 300 s.
+export const maxDuration = 300;
 
 /** Câu báo lỗi khi upstream gãy giữa dòng, theo ngôn ngữ giao diện */
 const STREAM_ERROR: Record<'vi' | 'zh', string> = {

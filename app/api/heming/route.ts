@@ -20,7 +20,8 @@ import { buildHemingContext } from '@/lib/ziwei/chart-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+// Hợp bàn sinh tới 6000 token, dễ quá 60 s; Vercel Hobby (Fluid compute) cho tối đa 300 s.
+export const maxDuration = 300;
 
 
 /** Câu báo lỗi khi upstream gãy giữa dòng, theo ngôn ngữ giao diện */
