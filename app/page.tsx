@@ -242,6 +242,28 @@ const SECTIONS_VI = [
     note: '',
     href: '/kinh-dich.html',
   },
+  {
+    key: 'bazi',
+    name: 'Bát tự',
+    en: 'Four Pillars',
+    desc: 'Tứ trụ · thập thần · ngũ hành · đại vận · AI luận',
+    status: 'ready' as const,
+    when: 'Dùng được',
+    icon: '☰',
+    note: '',
+    href: '/bat-tu',
+  },
+  {
+    key: 'xemngay',
+    name: 'Xem ngày',
+    en: 'Almanac',
+    desc: 'Hoàng đạo · nên / kiêng · giờ tốt · chọn ngày',
+    status: 'ready' as const,
+    when: 'Dùng được',
+    icon: '◷',
+    note: '',
+    href: '/xem-ngay',
+  },
 ];
 
 const SECTIONS_ZH: typeof SECTIONS_VI = [
@@ -288,6 +310,28 @@ const SECTIONS_ZH: typeof SECTIONS_VI = [
     icon: '☯',
     note: '',
     href: '/kinh-dich.html',
+  },
+  {
+    key: 'bazi',
+    name: '八字',
+    en: 'Four Pillars',
+    desc: '四柱 · 十神 · 五行 · 大运 · AI 解读',
+    status: 'ready' as const,
+    when: '可用',
+    icon: '☰',
+    note: '',
+    href: '/bat-tu',
+  },
+  {
+    key: 'xemngay',
+    name: '黄历',
+    en: 'Almanac',
+    desc: '黄道 · 宜忌 · 吉时 · 择日',
+    status: 'ready' as const,
+    when: '可用',
+    icon: '◷',
+    note: '',
+    href: '/xem-ngay',
   },
 ];
 
@@ -925,7 +969,7 @@ export default function HomePage() {
 
         <div className="max-w-sm lg:max-w-5xl mx-auto relative">
           {/* 横向连接线（仅桌面）*/}
-          <div className="hidden lg:block absolute top-7 left-[12.5%] right-[12.5%] h-0.5"
+          <div className="hidden lg:block absolute top-7 left-[8.33%] right-[8.33%] h-0.5"
             style={{
               background: `linear-gradient(90deg, ${c.goldSolid} 0%, ${c.goldSolid} 25%, ${c.goldLine} 25%)`,
               opacity: 0.6,
@@ -938,7 +982,7 @@ export default function HomePage() {
               opacity: 0.6,
             }} />
 
-          <div className="flex flex-col gap-5 lg:grid lg:grid-cols-4 lg:gap-4">
+          <div className="flex flex-col gap-5 lg:grid lg:grid-cols-6 lg:gap-3">
             {SECTIONS[locale].map((s, i) => {
               const ready = s.status === 'ready';
               return (
@@ -1002,7 +1046,7 @@ export default function HomePage() {
                       </div>
                     )}
                     {/* 简介 */}
-                    <div className="text-[11px] lg:text-xs leading-relaxed lg:max-w-[200px] mt-0.5 lg:mt-0"
+                    <div className="text-[11px] lg:text-xs leading-relaxed lg:max-w-[160px] mt-0.5 lg:mt-0"
                       style={{ color: c.textSecond }}>
                       {s.desc}
                     </div>
@@ -1307,7 +1351,7 @@ export default function HomePage() {
             style={{ color: c.textMuted, opacity: 0.6 }}>
             Các khu vực của trang
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
             {SECTIONS[locale].map(s => {
               const ready = s.status === 'ready';
               return (

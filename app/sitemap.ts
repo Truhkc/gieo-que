@@ -21,6 +21,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: BASE_URL, priority: 1.0, changeFrequency: 'weekly', lastModified: lastmod },
     { url: `${BASE_URL}/chart`, priority: 0.95, changeFrequency: 'weekly', lastModified: lastmod },
     { url: `${BASE_URL}/heming`, priority: 0.7, changeFrequency: 'weekly', lastModified: lastmod },
+    { url: `${BASE_URL}/bat-tu`, priority: 0.85, changeFrequency: 'monthly', lastModified: new Date('2026-11-11') },
+    // Nội dung đổi theo ngày người xem chọn; trang gốc mặc định là hôm nay
+    { url: `${BASE_URL}/xem-ngay`, priority: 0.85, changeFrequency: 'daily', lastModified: new Date('2026-11-11') },
     { url: `${BASE_URL}/library`, priority: 0.85, changeFrequency: 'weekly', lastModified: lastmod },
     { url: `${BASE_URL}/knowledge`, priority: 0.9, changeFrequency: 'weekly', lastModified: lastmod },
     { url: `${BASE_URL}/terms`, priority: 0.3, changeFrequency: 'monthly', lastModified: lastmod },

@@ -17,11 +17,21 @@ declare module 'lunar-javascript' {
 
   class Solar {
     static fromYmd(year: number, month: number, day: number): Solar;
+    /** 2026-11-11 补：八字排盘需要时刻（lib/bazi/chart.ts） */
+    static fromYmdHms(year: number, month: number, day: number, hour: number, minute: number, second: number): Solar;
     getLunar(): Lunar;
     getYear(): number;
     getMonth(): number;
     getDay(): number;
+    /** 0 = 星期日（lib/almanac/day.ts） */
+    getWeek(): number;
   }
+
+  /** 内部查表（只声明测试用到的两张） */
+  const LunarUtil: {
+    SHI_SHEN: Record<string, string>;
+    CHANG_SHENG: string[];
+  };
 
   /** 农历月信息(2026-06-10 补:闰月大小月边界 clamp 用) */
   class LunarMonth {

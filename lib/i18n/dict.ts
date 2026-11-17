@@ -204,8 +204,8 @@ export const UI = {
   'home.scroll.end': { vi: 'Để rồi tự viết kịch bản đời mình', zh: '最终书写属于自己的人生剧本' },
   'home.sections.title': { vi: 'Các khu vực của trang', zh: '本站板块' },
   'home.sections.sub': {
-    vi: 'Lập lá số, hợp bàn, và thư viện cổ tịch nguyên văn',
-    zh: '排盘、合盘，以及古籍原文库',
+    vi: 'Tử Vi, hợp bàn, cổ tịch, gieo quẻ, Bát tự và xem ngày tốt xấu',
+    zh: '紫微排盘、合盘、古籍、易经占卜、四柱八字与黄历择日',
   },
   'home.trio.title': { vi: 'Thiên · Địa · Nhân', zh: '天 · 地 · 人' },
   'home.trio.sub1': {
