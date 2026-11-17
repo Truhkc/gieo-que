@@ -5,6 +5,7 @@ import type { Locale } from '@/lib/i18n/terms';
 import { useRouter } from 'next/navigation';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import StarField from '@/components/StarField';
+import FortuneCompass from '@/components/FortuneCompass';
 import { useTheme, type Theme } from '@/components/ThemeProvider';
 
 // ─── 滚动入场 wrapper ────────────────────────────────────
@@ -1302,6 +1303,13 @@ export default function HomePage() {
               </motion.button>
             </FadeIn>
           </div>
+        </div>
+      </section>
+
+      {/* ══ La bàn vận mệnh ════════════════════════════════ */}
+      <section id="la-ban" className="relative z-10 px-4 md:px-10 lg:px-14 py-16 lg:py-24">
+        <div className="max-w-6xl mx-auto">
+          <FortuneCompass />
         </div>
       </section>
 
