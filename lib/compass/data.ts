@@ -197,3 +197,67 @@ export const RELATION_TEXT: Record<Relation, Text & { tone: 'good' | 'ok' | 'car
     zh: '卦克日，主动在我，但忌过刚。',
   },
 };
+
+// ── Lời bình trong ngày ─────────────────────────────────────
+
+/** Việc nên / không nên theo tính chất từng quái (bổ sung cho 宜忌 của lịch ngày) */
+export const TRIGRAM_ADVICE: Record<string, { do: Text[]; avoid: Text[] }> = {
+  坎: {
+    do: [{ vi: 'Suy nghĩ, lập kế hoạch', zh: '思考筹划' }, { vi: 'Học hỏi, nghiên cứu', zh: '学习钻研' }],
+    avoid: [{ vi: 'Mạo hiểm, đầu cơ', zh: '冒险投机' }, { vi: 'Vay mượn, bảo lãnh', zh: '借贷担保' }],
+  },
+  艮: {
+    do: [{ vi: 'Hoàn tất việc dở dang', zh: '了结旧事' }, { vi: 'Nghỉ ngơi, tích sức', zh: '休养蓄力' }],
+    avoid: [{ vi: 'Khởi sự việc mới', zh: '贸然开新局' }, { vi: 'Đổi việc, đổi chỗ vội', zh: '仓促换工作' }],
+  },
+  震: {
+    do: [{ vi: 'Khởi động dự án', zh: '启动计划' }, { vi: 'Chủ động liên hệ', zh: '主动联络' }],
+    avoid: [{ vi: 'Nóng nảy, tranh cãi', zh: '急躁争吵' }],
+  },
+  巽: {
+    do: [{ vi: 'Thương lượng, thuyết phục', zh: '谈判说服' }, { vi: 'Kết nối quan hệ', zh: '拓展人脉' }],
+    avoid: [{ vi: 'Do dự kéo dài', zh: '优柔寡断' }, { vi: 'Nghe theo lời đồn', zh: '轻信传言' }],
+  },
+  离: {
+    do: [{ vi: 'Trình bày, quảng bá', zh: '展示宣传' }, { vi: 'Học tập, đọc sách', zh: '读书学习' }],
+    avoid: [{ vi: 'Nóng giận, phô trương', zh: '动怒张扬' }, { vi: 'Chi tiêu bốc đồng', zh: '冲动消费' }],
+  },
+  坤: {
+    do: [{ vi: 'Giúp đỡ người khác', zh: '扶助他人' }, { vi: 'Chăm lo gia đình', zh: '照顾家庭' }],
+    avoid: [{ vi: 'Tranh giành, ôm đồm', zh: '争抢揽事' }],
+  },
+  兑: {
+    do: [{ vi: 'Gặp gỡ, giao lưu', zh: '会友交流' }, { vi: 'Nói lời cảm ơn', zh: '表达感谢' }],
+    avoid: [{ vi: 'Lời nói sắc, châm chọc', zh: '言语尖刻' }, { vi: 'Hứa suông', zh: '轻诺' }],
+  },
+  乾: {
+    do: [{ vi: 'Đặt mục tiêu, quyết việc lớn', zh: '立目标定大事' }, { vi: 'Gặp cấp trên, quý nhân', zh: '拜见上司贵人' }],
+    avoid: [{ vi: 'Độc đoán, tự cao', zh: '独断自负' }],
+  },
+};
+
+export type DayLevel = 'great' | 'good' | 'fair' | 'poor' | 'bad';
+
+export const DAY_LEVEL_TEXT: Record<DayLevel, Text> = {
+  great: { vi: 'Rất tốt', zh: '大吉' },
+  good: { vi: 'Tốt', zh: '吉' },
+  fair: { vi: 'Bình thường', zh: '平' },
+  poor: { vi: 'Hơi xấu', zh: '小凶' },
+  bad: { vi: 'Xấu', zh: '凶' },
+};
+
+/**
+ * Chấm ngày cho người vừa quay la bàn: lịch ngày (hoàng/hắc đạo, sao tốt/xấu, «mọi việc không nên»)
+ * cộng quan hệ ngũ hành giữa quẻ quay được và can ngày. Thang −3…+3:
+ *   hoàng đạo +1 / hắc đạo −1 · sao 吉 +1 / 凶 −1 · ngũ hành good +1 / ok 0 / care −1
+ * Ngày 诸事不宜 thì tối đa là «Hơi xấu», dù quẻ tốt đến đâu.
+ */
+export function dayVerdict(
+  day: { tianShenType: string; xiuLuck: string; yi: string[] },
+  tone: 'good' | 'ok' | 'care',
+): { score: number; level: DayLevel } {
+  let score = (day.tianShenType === '黄道' ? 1 : -1) + (day.xiuLuck === '吉' ? 1 : -1) + (tone === 'good' ? 1 : tone === 'care' ? -1 : 0);
+  if (day.yi.includes('诸事不宜')) score = Math.min(score, -1);
+  const level: DayLevel = score >= 3 ? 'great' : score >= 1 ? 'good' : score === 0 ? 'fair' : score === -1 ? 'poor' : 'bad';
+  return { score, level };
+}

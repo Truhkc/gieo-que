@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { Solar } from 'lunar-javascript';
 import {
-  MOUNTAINS, STEMS, TRIGRAMS, dayStemIndex, mountainAt, normalizeAngle, relation,
+  MOUNTAINS, STEMS, TRIGRAMS, TRIGRAM_ADVICE, dayStemIndex, dayVerdict, mountainAt, normalizeAngle, relation,
 } from '../../lib/compass/data';
 
 // 24 sơn, cách nhau 15°, mỗi quái quản đúng 3 sơn liền nhau
@@ -57,3 +57,20 @@ assert.equal(relation('木', '金'), 'dayControls'); // ngày Kim khắc quái M
 assert.equal(relation('木', '土'), 'controlsDay'); // quái Mộc khắc ngày Thổ
 
 console.log('fortune-compass: OK');
+
+// Lời bình trong ngày
+{
+  for (const t of TRIGRAMS) {
+    const a = TRIGRAM_ADVICE[t.han];
+    assert.ok(a && a.do.length >= 1 && a.avoid.length >= 1, t.han);
+  }
+  const hd = { tianShenType: '黄道', xiuLuck: '吉', yi: ['嫁娶'] };
+  const bd = { tianShenType: '黑道', xiuLuck: '凶', yi: ['祭祀'] };
+  assert.deepEqual(dayVerdict(hd, 'good'), { score: 3, level: 'great' });
+  assert.equal(dayVerdict(hd, 'care').level, 'good');
+  assert.equal(dayVerdict({ ...hd, xiuLuck: '凶' }, 'ok').level, 'fair');
+  assert.equal(dayVerdict(bd, 'good').level, 'poor');
+  assert.equal(dayVerdict(bd, 'care').level, 'bad');
+  assert.equal(dayVerdict({ ...hd, yi: ['诸事不宜'] }, 'good').level, 'poor');
+  console.log('fortune-compass verdict: OK');
+}

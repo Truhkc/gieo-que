@@ -3,9 +3,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useI18n } from '@/components/LocaleProvider';
 import {
-  ELEMENT_VI, MOUNTAINS, RELATION_TEXT, STEMS, STEMS_VI, TRIGRAMS,
-  dayStemIndex, mountainAt, relation, type Element, type Mountain,
+  DAY_LEVEL_TEXT, ELEMENT_VI, MOUNTAINS, RELATION_TEXT, STEMS, STEMS_VI, TRIGRAMS, TRIGRAM_ADVICE,
+  dayStemIndex, dayVerdict, mountainAt, relation, type Element, type Mountain,
 } from '@/lib/compass/data';
+import type { DayAlmanac } from '@/lib/almanac/day';
+import type { viAlmanac as ViAlmanacFn } from '@/lib/almanac/terms-vi';
 
 /**
  * La bàn vận mệnh — đĩa la bàn bát quái kéo/vuốt để quay, có quán tính.
@@ -150,7 +152,7 @@ function todayVn(): { y: number; m: number; d: number } {
 }
 
 export default function FortuneCompass() {
-  const { locale } = useI18n();
+  const { locale, term } = useI18n();
   const zh = locale === 'zh';
   const L = (vi: string, z: string) => (zh ? z : vi);
 
@@ -169,10 +171,18 @@ export default function FortuneCompass() {
   const [spins, setSpins] = useState(0);
   const [busy, setBusy] = useState(false);
   const [dayStem, setDayStem] = useState<number | null>(null);
+  // Lịch ngày hôm nay (hoàng đạo, nên/kiêng, giờ tốt). Tải riêng sau khi trang mở để trang chủ
+  // không phải kéo thư viện lịch âm ngay lúc vào; tới lúc người xem quay xong thì đã có.
+  const [today, setToday] = useState<{ a: DayAlmanac; tr: typeof ViAlmanacFn; common: readonly string[] } | null>(null);
 
   useEffect(() => {
     const t = todayVn();
     setDayStem(dayStemIndex(t.y, t.m, t.d));
+    let alive = true;
+    Promise.all([import('@/lib/almanac/day'), import('@/lib/almanac/terms-vi')])
+      .then(([day, terms]) => { if (alive) setToday({ a: day.getDayAlmanac(t.y, t.m, t.d), tr: terms.viAlmanac, common: day.COMMON_ACTIVITIES }); })
+      .catch(() => { /* không có lịch ngày thì thẻ vẫn hiện quẻ và lời nhắn như cũ */ });
+    return () => { alive = false; };
   }, []);
 
   const reduceMotion = useMemo(
@@ -334,6 +344,36 @@ export default function FortuneCompass() {
   const rel = gua && dayEl ? RELATION_TEXT[relation(gua.element, dayEl)] : null;
   const liveGua = TRIGRAMS[live.trigram];
 
+  /** Lời bình trong ngày: chấm điểm + nên/không nên (lời khuyên theo quẻ trước, rồi 宜忌 của lịch) */
+  const dayNote = (() => {
+    if (!today || !gua || !rel || !dayEl) return null;
+    const { a, tr, common } = today;
+    const v = dayVerdict(a, rel.tone);
+    // Việc thường gặp (cưới hỏi, khai trương, xuất hành…) lên trước việc hiếm (săn bắn, đan lưới…)
+    const rank = (x: string) => { const i = common.indexOf(x); return i < 0 ? 999 : i; };
+    const byCommon = (xs: string[]) => [...xs].sort((p, q) => rank(p) - rank(q));
+    const relKey = relation(gua.element, dayEl);
+    const REL_SHORT = {
+      same: { vi: 'đồng hành', zh: '同气' }, dayFeeds: { vi: 'ngày sinh quẻ', zh: '日生卦' },
+      feedsDay: { vi: 'quẻ sinh ngày', zh: '卦生日' }, dayControls: { vi: 'ngày khắc quẻ', zh: '日克卦' },
+      controlsDay: { vi: 'quẻ khắc ngày', zh: '卦克日' },
+    }[relKey];
+    const skip = new Set(['诸事不宜', '馀事勿取', '无']);
+    const advice = TRIGRAM_ADVICE[gua.han];
+    const pick = (x: { vi: string; zh: string }) => (zh ? x.zh : x.vi);
+    const doList = [...advice.do.map(pick), ...byCommon(a.yi.filter(x => !skip.has(x))).slice(0, 5).map(x => tr('yiji', x, locale))];
+    const avoidList = [
+      ...(a.yi.includes('诸事不宜') ? [tr('yiji', '诸事不宜', locale)] : []),
+      ...advice.avoid.map(pick),
+      ...byCommon(a.ji.filter(x => !skip.has(x))).slice(0, 5).map(x => tr('yiji', x, locale)),
+    ];
+    const goodHours = a.hours.filter(h => h.type === '黄道').map(h => `${term(h.zhi)} ${h.start.slice(0, 2)}–${String((Number(h.end.slice(0, 2)) + 1) % 24).padStart(2, '0')}h`);
+    const why = zh
+      ? `${a.tianShenType}日（${a.tianShen}）· ${a.xiu}宿${a.xiuLuck} · ${REL_SHORT.zh}`
+      : `Ngày ${tr('luck', a.tianShenType, locale).toLowerCase()} (${tr('shensha', a.tianShen, locale)}) · sao ${tr('xiu', a.xiu, locale)} ${tr('luck', a.xiuLuck, locale).toLowerCase()} · ${REL_SHORT.vi}`;
+    return { v, doList, avoidList, goodHours, why };
+  })();
+
   return (
     <div className="fc-root">
       <div className="fc-head">
@@ -441,6 +481,36 @@ export default function FortuneCompass() {
                         : `Hôm nay ngày ${STEMS_VI[dayStem]} (hành ${ELEMENT_VI[dayEl]}): ${rel.vi}`}
                     </p>
                   )}
+                  {dayNote && (
+                    <div className="fc-day">
+                      <div className="fc-day-head">
+                        <span className="fc-day-title">{L('Lời bình hôm nay', '今日断语')}</span>
+                        <span className={`fc-verdict fc-v-${dayNote.v.level}`}>
+                          {zh ? DAY_LEVEL_TEXT[dayNote.v.level].zh : DAY_LEVEL_TEXT[dayNote.v.level].vi}
+                        </span>
+                      </div>
+                      <p className="fc-day-why">{dayNote.why}</p>
+                      <p className="fc-day-rule">
+                        {L(
+                          'Cách chấm: hoàng đạo +1 / hắc đạo −1 · sao tốt +1 / xấu −1 · ngày sinh hoặc đồng hành với quẻ +1, ngày khắc quẻ −1. Ngày «mọi việc không nên» tối đa là Hơi xấu. Nên / kiêng lấy từ lịch vạn niên.',
+                          '评分：黄道 +1／黑道 −1 · 宿吉 +1／凶 −1 · 日生卦或同气 +1、日克卦 −1；诸事不宜之日最多「小凶」。宜忌取自黄历。',
+                        )}
+                      </p>
+                      <div className="fc-todo">
+                        <div>
+                          <div className="fc-todo-h fc-todo-do">✓ {L('Nên làm', '宜')}</div>
+                          <ul>{dayNote.doList.map(x => <li key={x}>{x}</li>)}</ul>
+                        </div>
+                        <div>
+                          <div className="fc-todo-h fc-todo-avoid">✕ {L('Không nên', '忌')}</div>
+                          <ul>{dayNote.avoidList.map(x => <li key={x}>{x}</li>)}</ul>
+                        </div>
+                      </div>
+                      {dayNote.goodHours.length > 0 && (
+                        <p className="fc-hours"><span>{L('Giờ tốt', '吉时')}:</span> {dayNote.goodHours.join(' · ')}</p>
+                      )}
+                    </div>
+                  )}
                   <dl className="fc-dl">
                     <dt>{L('Tính chất', '卦德')}</dt><dd>{zh ? gua.quality.zh : gua.quality.vi}</dd>
                     <dt>{L('Màu hợp', '幸运色')}</dt><dd>{zh ? gua.colors.zh : gua.colors.vi}</dd>
@@ -493,7 +563,7 @@ const CSS = `
   background: linear-gradient(120deg, #fff1c4, #d4a843 45%, #f7e2a0 70%, #b8862a); -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 0 40px rgba(212,168,67,0.25); }
 .fc-sub { font-size: 14px; line-height: 1.8; color: rgba(233,226,207,0.72); margin: 0; }
-.fc-body { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: center; max-width: 1040px; margin: 0 auto; }
+.fc-body { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: start; max-width: 1040px; margin: 0 auto; }
 .fc-stage { position: relative; width: var(--fc-size); height: calc(var(--fc-size) * 1.02); margin: 0 auto; perspective: 1100px; display: flex; align-items: center; justify-content: center; }
 .fc-glow { position: absolute; width: 90%; height: 90%; border-radius: 50%;
   background: radial-gradient(circle, rgba(212,168,67,0.22), rgba(120,90,200,0.12) 45%, transparent 70%); filter: blur(20px);
@@ -564,15 +634,33 @@ const CSS = `
 .fc-rel-good { color: #9fe0b0; border-color: #5fae6e; background: rgba(95,174,110,0.1); }
 .fc-rel-ok { color: #f0d79a; border-color: #d4a843; background: rgba(212,168,67,0.08); }
 .fc-rel-care { color: #f3a99c; border-color: #e0644f; background: rgba(224,100,79,0.09); }
-.fc-dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0 0 14px; font-size: 13px; }
+.fc-day { margin: 0 0 16px; padding: 14px 16px; border-radius: 14px; background: rgba(0,0,0,0.22); border: 1px solid rgba(212,168,67,0.22); }
+.fc-day-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.fc-day-title { font-size: 13px; font-weight: 700; letter-spacing: .08em; color: #f6dc94; }
+.fc-verdict { font-size: 13px; font-weight: 800; letter-spacing: .06em; padding: 4px 12px; border-radius: 999px; border: 1px solid; }
+.fc-v-great { color: #0d2414; background: linear-gradient(135deg, #a8f0bc, #5fae6e); border-color: #a8f0bc; box-shadow: 0 0 18px rgba(95,174,110,0.45); }
+.fc-v-good { color: #9fe0b0; border-color: #5fae6e; background: rgba(95,174,110,0.14); }
+.fc-v-fair { color: #f0d79a; border-color: #d4a843; background: rgba(212,168,67,0.12); }
+.fc-v-poor { color: #f3b29f; border-color: #c97a5a; background: rgba(224,100,79,0.12); }
+.fc-v-bad { color: #fff0ec; border-color: #e0644f; background: linear-gradient(135deg, #b9402e, #e0644f); box-shadow: 0 0 18px rgba(224,100,79,0.4); }
+.fc-day-why { font-size: 12px; color: rgba(233,226,207,0.6); margin: 0 0 4px; line-height: 1.6; }
+.fc-day-rule { font-size: 11px; color: rgba(233,226,207,0.4); margin: 0 0 10px; line-height: 1.55; }
+.fc-todo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fc-todo-h { font-size: 12px; font-weight: 700; letter-spacing: .06em; margin-bottom: 4px; }
+.fc-todo-do { color: #8fd6a2; }
+.fc-todo-avoid { color: #f19a88; }
+.fc-todo ul { margin: 0; padding-left: 16px; font-size: 13px; line-height: 1.65; color: #eadfc4; }
+.fc-hours { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: rgba(233,226,207,0.75); }
+.fc-hours span { color: #f6dc94; font-weight: 600; }
+.fc-dl { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 6px 12px; margin: 0 0 14px; font-size: 12.5px; }
 .fc-dl dt { color: rgba(233,226,207,0.5); }
 .fc-dl dd { margin: 0; color: #eadfc4; }
 .fc-links { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; }
 .fc-links a { color: #d4a843; text-decoration: none; border-bottom: 1px dashed rgba(212,168,67,0.5); }
 .fc-links a:hover { color: #ffd77a; }
 .fc-idle { text-align: center; color: rgba(233,226,207,0.6); font-size: 14px;
-  /* giữ chỗ bằng thẻ kết quả để la bàn bên cạnh không bị đẩy lên xuống khi quẻ hiện ra */
-  min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  /* la bàn neo ở đầu cột (align-items: start) nên thẻ dài ra không đẩy la bàn; ô chờ chỉ cần đủ cao cho cân */
+  min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .fc-idle-sym { font-size: 42px; color: rgba(212,168,67,0.5); margin-bottom: 6px; animation: fc-turn 18s linear infinite; display: inline-block; }
 .fc-idle p { margin: 0; }
 .fc-note { font-size: 11px; color: rgba(233,226,207,0.4); margin: 0; }
@@ -580,6 +668,10 @@ const CSS = `
   .fc-body { grid-template-columns: 1fr; gap: 28px; }
   .fc-root { padding: 44px 14px 36px; border-radius: 22px; }
   .fc-idle { min-height: 140px; }
+  .fc-dl { grid-template-columns: auto 1fr; }
+}
+@media (max-width: 420px) {
+  .fc-todo { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   .fc-glow, .fc-taiji, .fc-idle-sym { animation: none; }
